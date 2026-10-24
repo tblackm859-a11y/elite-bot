@@ -151,14 +151,19 @@
             const badge = document.getElementById('statusBadge');
             badge.innerText = 'RUNNING';
             badge.classList.add('active');
+
+            fetch('http://127.0.0.1:5000/start', { method: 'POST' })
+                .catch(err => console.log('Local bridge signal sent'));
         }
 
         function stopBot() {
             const badge = document.getElementById('statusBadge');
             badge.innerText = 'STOPPED';
             badge.classList.remove('active');
+
+            fetch('http://127.0.0.1:5000/stop', { method: 'POST' })
+                .catch(err => console.log('Local bridge stopped'));
         }
     </script>
 </body>
-    </html>
-    
+</html>
