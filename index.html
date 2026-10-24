@@ -13,8 +13,14 @@
         .status-badge { background: #064e3b; color: #34d399; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; display: inline-block; margin-bottom: 12px; }
         .card { background: #14171f; border: 1px solid #1f2430; border-radius: 12px; padding: 16px; margin-bottom: 12px; }
         .card-title { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: bold; color: #fbbf24; margin-bottom: 12px; text-transform: uppercase; }
-        .metric-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
+        .metric-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; align-items: center; }
         .metric-row span:last-child { color: #ffffff; font-family: monospace; }
+        
+        .mode-switch { display: flex; background: #1b1f2b; border-radius: 6px; padding: 2px; border: 1px solid #232838; }
+        .mode-btn { background: transparent; border: none; color: #9ca3af; font-size: 10px; font-weight: bold; padding: 4px 10px; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+        .mode-btn.active-demo { background: #3b82f6; color: #ffffff; }
+        .mode-btn.active-real { background: #f59e0b; color: #000000; }
+
         .analysis-item { display: flex; justify-content: space-between; align-items: center; background: #1b1f2b; padding: 10px 12px; border-radius: 8px; margin-bottom: 8px; font-size: 12px; color: #ffffff; }
         .dot { height: 8px; width: 8px; background-color: #34d399; border-radius: 50%; box-shadow: 0 0 8px #34d399; }
         .chart-box { background: #1b1f2b; height: 90px; border-radius: 8px; overflow: hidden; margin-bottom: 12px; border: 1px solid #232838; position: relative; }
@@ -43,12 +49,15 @@
     <div class="card" style="margin-top: 12px;">
         <div class="card-title">
             <span>⚡ MT5 ACCOUNT</span>
-            <span style="font-size: 11px; color: #ef4444; cursor: pointer;">Remove</span>
+            <div class="mode-switch">
+                <button id="demoBtn" class="mode-btn" onclick="setAccountMode('DEMO')">TEST (DEMO)</button>
+                <button id="realBtn" class="mode-btn active-real" onclick="setAccountMode('REAL')">REAL</button>
+            </div>
         </div>
         <div class="metric-row"><span>Broker:</span><span>JustMarkets</span></div>
-        <div class="metric-row"><span>Login:</span><span>56197382</span></div>
-        <div class="metric-row"><span>Server:</span><span>JustMarkets-Live</span></div>
-        <div class="metric-row"><span>Account type:</span><span>Live</span></div>
+        <div class="metric-row"><span>Login:</span><span id="accountLogin">1550283076</span></div>
+        <div class="metric-row"><span>Server:</span><span id="accountServer">JustMarkets-Live7</span></div>
+        <div class="metric-row"><span>Account type:</span><span id="accountType" style="color: #f59e0b; font-weight: bold;">Live</span></div>
     </div>
 
     <div class="card">
@@ -68,7 +77,7 @@
         <div class="analysis-item"><span>Detecting market</span><span class="dot"></span></div>
         <div class="analysis-item"><span>Calibrating stop loss</span><span class="dot"></span></div>
         <div class="analysis-item"><span>AI scoring</span><span class="dot"></span></div>
-        <p style="font-size: 11px; color: #9ca3af; margin-top: 8px; text-align: center;">Elite Bot is monitoring your live account</p>
+        <p style="font-size: 11px; color: #9ca3af; margin-top: 8px; text-align: center;" id="modeFooter">Elite Bot is monitoring your real account</p>
     </div>
 
     <div class="card">
@@ -83,6 +92,33 @@
     </div>
 
     <script>
+        function setAccountMode(mode) {
+            const demoBtn = document.getElementById('demoBtn');
+            const realBtn = document.getElementById('realBtn');
+            const accType = document.getElementById('accountType');
+            const accLogin = document.getElementById('accountLogin');
+            const accServer = document.getElementById('accountServer');
+            const footer = document.getElementById('modeFooter');
+
+            if (mode === 'DEMO') {
+                demoBtn.className = 'mode-btn active-demo';
+                realBtn.className = 'mode-btn';
+                accType.innerText = 'Demo (Test)';
+                accType.style.color = '#3b82f6';
+                accLogin.innerText = '1200453988';
+                accServer.innerText = 'JustMarkets-Demo3';
+                footer.innerText = 'Elite Bot is running in TEST (Demo) mode';
+            } else {
+                realBtn.className = 'mode-btn active-real';
+                demoBtn.className = 'mode-btn';
+                accType.innerText = 'Live';
+                accType.style.color = '#f59e0b';
+                accLogin.innerText = '1550283076';
+                accServer.innerText = 'JustMarkets-Live7';
+                footer.innerText = 'Elite Bot is monitoring your real account';
+            }
+        }
+
         function setBotStatus(status) {
             const indicator = document.getElementById('status-indicator');
             if (status === 'RUNNING') {
@@ -97,4 +133,5 @@
         }
     </script>
 </body>
-</html>
+    </html>
+    
