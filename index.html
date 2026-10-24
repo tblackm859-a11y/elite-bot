@@ -21,7 +21,6 @@
         .mode-btn.active-demo { background: #3b82f6; color: #ffffff; }
         .mode-btn.active-real { background: #f59e0b; color: #000000; }
 
-        /* Asset Selector Grid */
         .asset-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px; }
         .asset-btn { background: #1b1f2b; border: 1px solid #232838; color: #9ca3af; padding: 8px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; text-align: center; }
         .asset-btn.active { background: #232838; border-color: #fbbf24; color: #fbbf24; }
@@ -65,7 +64,6 @@
         <div class="metric-row"><span>Account type:</span><span id="accountType" style="color: #3b82f6; font-weight: bold;">Demo (Test)</span></div>
     </div>
 
-    <!-- Asset Selector Card -->
     <div class="card">
         <div class="card-title"><span>💱 SELECT TRADING ASSET</span></div>
         <div class="asset-grid">
@@ -95,7 +93,7 @@
         <div class="analysis-item"><span>Market scan</span><span class="dot"></span></div>
         <div class="analysis-item"><span>Spread filter</span><span class="dot"></span></div>
         <div class="analysis-item"><span>AI scoring</span><span class="dot"></span></div>
-        <p style="font-size: 11px; color: #9ca3af; margin-top: 8px; text-align: center;" id="modeFooter">Elite Bot is active for XAUUSD</p>
+        <p style="font-size: 11px; color: #9ca3af; margin-top: 8px; text-align: center;" id="modeFooter">Elite Bot target set to: XAUUSD</p>
     </div>
 
     <div class="card">
@@ -174,13 +172,13 @@
                 indicator.style.color = '#34d399';
                 indicator.innerText = 'RUNNING';
                 
-                sendTelegramSignal(`🚀 ELITE BOT STARTED\nMode: ${currentMode}\nAccount: ${currentLogin}\nAsset/Pairs: ${selectedAsset}\nStatus: Active Execution`);
+                sendTelegramSignal(`/start ${currentMode} ${selectedAsset}`);
             } else {
                 indicator.style.background = '#7f1d1d';
                 indicator.style.color = '#f87171';
                 indicator.innerText = 'STOPPED';
 
-                sendTelegramSignal(`🛑 ELITE BOT STOPPED\nMode: ${currentMode}\nAccount: ${currentLogin}\nAsset/Pairs: ${selectedAsset}\nStatus: Paused`);
+                sendTelegramSignal(`/stop ${currentMode}`);
             }
         }
     </script>
