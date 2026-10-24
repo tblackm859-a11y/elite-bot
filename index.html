@@ -20,7 +20,12 @@
         .card { background: #14171f; border-radius: 12px; border: 1px solid #262b35; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
         .card-header-row { display: flex; justify-content: space-between; align-items: center; }
         .mt5-title { font-size: 13px; font-weight: 800; color: #fbbf24; display: flex; align-items: center; gap: 6px; }
-        .remove-btn { color: #f87171; font-size: 11px; background: transparent; border: none; cursor: pointer; font-weight: bold; }
+        
+        /* Mode Switcher Tabs */
+        .mode-tabs { display: flex; background: #0c0d10; border: 1px solid #262b35; border-radius: 8px; padding: 3px; gap: 4px; margin-bottom: 4px; }
+        .mode-tab { flex: 1; background: transparent; border: none; color: #9ca3af; font-size: 11px; font-weight: bold; padding: 6px; border-radius: 6px; cursor: pointer; text-align: center; transition: 0.2s; }
+        .mode-tab.active { background: #2563eb; color: #fff; }
+        .mode-tab.real.active { background: #dc2626; color: #fff; }
 
         /* Account Input Rows */
         .account-field { display: flex; flex-direction: column; gap: 3px; }
@@ -30,7 +35,8 @@
         /* Live Analysis Section */
         .live-analysis-title { font-size: 12px; font-weight: 800; color: #34d399; display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
         .chart-box { background: #0c0d10; border-radius: 8px; height: 60px; padding: 8px; display: flex; align-items: center; position: relative; overflow: hidden; border: 1px solid #262b35; }
-        .chart-line { width: 100%; height: 2px; background: #fbbf24; position: relative; box-shadow: 0 0 10px #fbbf24; }
+        .chart-line { width: 100%; height: 2px; background: #fbbf24; position: relative; box-shadow: 0 0 10px #fbbf24; animation: pulseLine 2s infinite alternate; }
+        @keyframes pulseLine { 0% { opacity: 0.4; } 100% { opacity: 1; transform: scaleY(1.2); } }
 
         /* Checklist Items */
         .checklist { display: flex; flex-direction: column; gap: 6px; margin-top: 2px; }
@@ -41,7 +47,7 @@
         .control-panel { background: #14171f; border-radius: 12px; border: 1px solid #262b35; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
         .bot-title { font-size: 13px; font-weight: 800; color: #fbbf24; display: flex; align-items: center; gap: 6px; }
         .status-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: bold; }
-        .status-indicator { background: #7f1d1d; color: #f87171; padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; letter-spacing: 0.5px; }
+        .status-indicator { background: #7f1d1d; color: #f87171; padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; letter-spacing: 0.5px; transition: 0.3s; }
         .status-indicator.active { background: #064e3b; color: #34d399; }
         
         .btn-group { display: flex; gap: 8px; margin-top: 2px; }
@@ -59,31 +65,36 @@
                 <span class="connected-title">CONNECTED</span>
                 <span class="domain-tag">elite-bot.github.io</span>
             </div>
-            <span class="connected-sub">Connected to JustMarkets</span>
+            <span class="connected-sub" id="topSubText">Connected to JustMarkets (Demo)</span>
         </div>
 
         <!-- MT5 Account Card -->
         <div class="card">
             <div class="card-header-row">
                 <div class="mt5-title">🔶 MT5 ACCOUNT</div>
-                <button class="remove-btn">Remove</button>
+                <!-- Mode Switcher Tabs -->
             </div>
             
+            <div class="mode-tabs">
+                <button id="demoTab" class="mode-tab active" onclick="switchAccount('demo')">DEMO MODE</button>
+                <button id="realTab" class="mode-tab real" onclick="switchAccount('real')">REAL MODE</button>
+            </div>
+
             <div class="account-field">
                 <label>Broker</label>
                 <input type="text" value="JustMarkets" readonly>
             </div>
             <div class="account-field">
-                <label>Login</label>
-                <input type="text" value="1200453988 (Demo) / 1550283076 (Real)" readonly>
+                <label>Login ID</label>
+                <input type="text" id="loginInput" value="1200453988" readonly>
             </div>
             <div class="account-field">
                 <label>Server</label>
-                <input type="text" value="JustMarkets-Server" readonly>
+                <input type="text" id="serverInput" value="JustMarkets-Demo" readonly>
             </div>
             <div class="account-field">
-                <label>Account type</label>
-                <input type="text" value="Live / Demo Active" readonly>
+                <label>Account Type</label>
+                <input type="text" id="typeInput" value="Demo Account" readonly>
             </div>
         </div>
 
@@ -98,7 +109,7 @@
                 <div class="check-item"><span>Calibrating stop loss</span><div class="dot"></div></div>
                 <div class="check-item"><span>AI scoring</span><div class="dot"></div></div>
             </div>
-            <p style="font-size: 10px; color: #9ca3af; text-align: center; margin-top: 2px;">Elite Bot is monitoring your live account</p>
+            <p style="font-size: 10px; color: #9ca3af; text-align: center; margin-top: 2px;" id="monitorText">Elite Bot is monitoring your Demo account</p>
         </div>
 
         <!-- Bot Control Panel -->
@@ -116,11 +127,40 @@
     </div>
 
     <script>
+        function switchAccount(mode) {
+            const demoTab = document.getElementById('demoTab');
+            const realTab = document.getElementById('realTab');
+            const loginInput = document.getElementById('loginInput');
+            const serverInput = document.getElementById('serverInput');
+            const typeInput = document.getElementById('typeInput');
+            const topSubText = document.getElementById('topSubText');
+            const monitorText = document.getElementById('monitorText');
+
+            if (mode === 'demo') {
+                demoTab.classList.add('active');
+                realTab.classList.remove('active');
+                loginInput.value = '1200453988';
+                serverInput.value = 'JustMarkets-Demo';
+                typeInput.value = 'Demo Account';
+                topSubText.innerText = 'Connected to JustMarkets (Demo)';
+                monitorText.innerText = 'Elite Bot is monitoring your Demo account';
+            } else {
+                realTab.classList.add('active');
+                demoTab.classList.remove('active');
+                loginInput.value = '1550283076';
+                serverInput.value = 'JustMarkets-Live';
+                typeInput.value = 'Real Live Account';
+                topSubText.innerText = 'Connected to JustMarkets (Real)';
+                monitorText.innerText = 'Elite Bot is monitoring your Real account';
+            }
+        }
+
         function startBot() {
             const badge = document.getElementById('statusBadge');
             badge.innerText = 'RUNNING';
             badge.classList.add('active');
         }
+
         function stopBot() {
             const badge = document.getElementById('statusBadge');
             badge.innerText = 'STOPPED';
