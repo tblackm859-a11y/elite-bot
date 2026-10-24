@@ -2,230 +2,405 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MT5 Control - Elite Bot</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MT5 Control</title>
     <style>
-        body {
-            background-color: #0c0d10;
-            color: #d1d5db;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        * {
+            box-sizing: border-box;
             margin: 0;
-            padding: 12px;
-            max-width: 480px;
-            margin-left: auto;
-            margin-right: auto;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
-        .header {
+
+        body {
+            background-color: #0d0f12;
+            color: #f3f4f6;
+            padding: 14px 12px;
+            max-width: 440px;
+            margin: 0 auto;
+        }
+
+        /* Top Bar Navigation */
+        .top-nav {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #14171f;
-            padding: 12px 16px;
-            border-radius: 12px;
-            border: 1px solid #1f2430;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
         }
-        .header h2 {
-            font-size: 15px;
-            margin: 0;
+
+        .title-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .title-group h1 {
+            font-size: 18px;
+            font-weight: 700;
             color: #ffffff;
+            letter-spacing: -0.3px;
         }
-        .header span {
+
+        .title-group p {
             font-size: 11px;
+            color: #6b7280;
+            margin-top: 1px;
+        }
+
+        .nav-icons {
+            display: flex;
+            gap: 12px;
             color: #9ca3af;
         }
-        .status-badge {
-            background: #064e3b;
-            color: #34d399;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: bold;
-            display: inline-block;
-            margin-bottom: 12px;
+
+        /* Status Banner */
+        .status-container {
+            margin-bottom: 16px;
         }
-        .card {
-            background: #14171f;
-            border: 1px solid #1f2430;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 12px;
-        }
-        .card-title {
-            display: flex;
-            justify-content: space-between;
+
+        .status-pill {
+            display: inline-flex;
             align-items: center;
-            font-size: 13px;
-            font-weight: bold;
-            color: #fbbf24;
-            margin-bottom: 12px;
-            text-transform: uppercase;
+            gap: 6px;
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #10b981;
             letter-spacing: 0.5px;
         }
-        .metric-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 13px;
+
+        .status-pill .dot {
+            width: 6px;
+            height: 6px;
+            background-color: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #10b981;
         }
-        .metric-row span:last-child {
-            color: #ffffff;
-            font-family: monospace;
+
+        .broker-text {
+            font-size: 11px;
+            color: #6b7280;
+            margin-left: 8px;
         }
-        .analysis-item {
+
+        /* Dark Card Component */
+        .card {
+            background: #14171d;
+            border: 1px solid #1f242d;
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 14px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #1b1f2b;
-            padding: 10px 12px;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            font-size: 12px;
+            margin-bottom: 14px;
         }
-        .dot {
-            height: 8px;
-            width: 8px;
-            background-color: #34d399;
-            border-radius: 50%;
-            display: inline-block;
-        }
-        .chart-placeholder {
-            background: #1b1f2b;
-            height: 90px;
-            border-radius: 8px;
+
+        .card-title {
             display: flex;
-            align-items: flex-end;
-            justify-content: space-around;
-            padding: 10px;
-            margin-bottom: 12px;
-            border-bottom: 2px solid #fbbf24;
-        }
-        .bar {
-            width: 8%;
-            background: linear-gradient(to top, #d97706, #fbbf24);
-            border-radius: 4px 4px 0 0;
-        }
-        .control-btns {
-            display: flex;
-            gap: 10px;
-            margin-top: 12px;
-        }
-        .btn {
-            flex: 1;
-            padding: 12px;
-            border-radius: 8px;
-            font-weight: bold;
+            align-items: center;
+            gap: 8px;
             font-size: 13px;
+            font-weight: 800;
+            color: #f59e0b;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .btn-remove {
+            color: #ef4444;
+            font-size: 11px;
+            font-weight: 600;
+            background: none;
             border: none;
             cursor: pointer;
-            text-align: center;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
-        .btn-start {
-            background-color: #064e3b;
+
+        /* Account Table Details */
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            font-size: 13px;
+        }
+
+        .info-label {
+            color: #9ca3af;
+        }
+
+        .info-value {
+            color: #ffffff;
+            font-weight: 500;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        }
+
+        /* Continuous Golden Area Chart */
+        .chart-box {
+            position: relative;
+            width: 100%;
+            height: 110px;
+            background: #101217;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #1a1e27;
+            margin-bottom: 14px;
+        }
+
+        .chart-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Market Signals Checklist */
+        .check-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #1a1e26;
+            border: 1px solid #232833;
+            padding: 11px 14px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            font-size: 12px;
+            color: #d1d5db;
+        }
+
+        .glow-dot {
+            width: 7px;
+            height: 7px;
+            background-color: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #10b981;
+        }
+
+        .monitor-footer {
+            text-align: center;
+            font-size: 11px;
+            color: #6b7280;
+            margin-top: 10px;
+        }
+
+        /* Controls Section */
+        .bot-status-tag {
+            font-size: 10px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 4px;
+            letter-spacing: 0.5px;
+            transition: all 0.2s ease;
+        }
+
+        .status-running {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+
+        .status-stopped {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .btn-action {
+            flex: 1;
+            padding: 13px 8px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: opacity 0.15s ease;
+        }
+
+        .btn-action:active {
+            opacity: 0.75;
+        }
+
+        .btn-start-style {
+            background: #064e3b;
             color: #34d399;
             border: 1px solid #059669;
         }
-        .btn-stop {
-            background-color: #7f1d1d;
+
+        .btn-stop-style {
+            background: #7f1d1d;
             color: #f87171;
             border: 1px solid #dc2626;
         }
-        .btn:active {
-            opacity: 0.8;
+
+        /* Toast Popup Notification */
+        .toast {
+            position: fixed;
+            bottom: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #111827;
+            color: #ffffff;
+            border: 1px solid #374151;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 600;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: bottom 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 999;
+        }
+
+        .toast.show {
+            bottom: 24px;
         }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div>
-            <h2>MT5 Control</h2>
-            <span>ghostraderaal.com</span>
+    <!-- Header -->
+    <div class="top-nav">
+        <div class="title-group">
+            <span style="font-size: 18px;">📱</span>
+            <div>
+                <h1>MT5 Control</h1>
+                <p>ghostraderaal.com</p>
+            </div>
         </div>
-        <div>
-            <span style="font-size: 16px;">⚙️</span>
+        <div class="nav-icons">
+            <span>⚙️</span>
         </div>
     </div>
 
-    <div>
-        <div class="status-badge">🟢 CONNECTED</div>
-        <span style="font-size: 12px; color: #9ca3af; margin-left: 6px;">Connected to Exness</span>
+    <!-- Connection Banner -->
+    <div class="status-container">
+        <span class="status-pill"><span class="dot"></span> CONNECTED</span>
+        <span class="broker-text">Connected to Exness</span>
     </div>
 
-    <!-- MT5 ACCOUNT CARD -->
-    <div class="card" style="margin-top: 12px;">
-        <div class="card-title">
-            <span>⚡ MT5 Account</span>
-            <span style="font-size: 11px; color: #ef4444; cursor: pointer;">Remove</span>
-        </div>
-        
-        <div class="metric-row"><span>Broker:</span><span>Exness</span></div>
-        <div class="metric-row"><span>Login:</span><span>56197382</span></div>
-        <div class="metric-row"><span>Server:</span><span>Exness-Real23</span></div>
-        <div class="metric-row"><span>Account type:</span><span>Live</span></div>
-    </div>
-
-    <!-- LIVE ANALYSIS CARD -->
+    <!-- Account Details Card -->
     <div class="card">
-        <div class="card-title">
-            <span>📈 Live Analysis</span>
+        <div class="card-header">
+            <div class="card-title">
+                <span>⚡ MT5 ACCOUNT</span>
+            </div>
+            <button class="btn-remove">🗑️ Remove</button>
         </div>
-        
-        <!-- Simulated chart bars matching video vibe -->
-        <div class="chart-placeholder">
-            <div class="bar" style="height: 30%;"></div>
-            <div class="bar" style="height: 45%;"></div>
-            <div class="bar" style="height: 40%;"></div>
-            <div class="bar" style="height: 65%;"></div>
-            <div class="bar" style="height: 55%;"></div>
-            <div class="bar" style="height: 80%;"></div>
-            <div class="bar" style="height: 70%;"></div>
-            <div class="bar" style="height: 95%;"></div>
+        <div class="info-row"><span class="info-label">Broker:</span><span class="info-value">Exness</span></div>
+        <div class="info-row"><span class="info-label">Login:</span><span class="info-value">56197382</span></div>
+        <div class="info-row"><span class="info-label">Server:</span><span class="info-value">Exness-Real23</span></div>
+        <div class="info-row"><span class="info-label">Account type:</span><span class="info-value">Live</span></div>
+    </div>
+
+    <!-- Live Analysis Chart Card -->
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">
+                <span>📈 LIVE ANALYSIS</span>
+            </div>
         </div>
 
-        <div class="analysis-item">
+        <!-- Glowing Golden Area Chart -->
+        <div class="chart-box">
+            <svg class="chart-svg" viewBox="0 0 300 100" preserveAspectRatio="none">
+                <defs>
+                    <linearGradient id="goldGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.5"/>
+                        <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.0"/>
+                    </linearGradient>
+                </defs>
+                <path d="M0,70 Q 30,50 60,60 T 120,40 T 180,55 T 240,25 T 300,35 L 300,100 L 0,100 Z" fill="url(#goldGradient)" />
+                <path d="M0,70 Q 30,50 60,60 T 120,40 T 180,55 T 240,25 T 300,35" fill="none" stroke="#f59e0b" stroke-width="2.5" />
+            </svg>
+        </div>
+
+        <div class="check-item">
             <span>Detecting market</span>
-            <span class="dot"></span>
+            <span class="glow-dot"></span>
         </div>
-        <div class="analysis-item">
+        <div class="check-item">
             <span>Calibrating stop loss</span>
-            <span class="dot"></span>
+            <span class="glow-dot"></span>
         </div>
-        <div class="analysis-item">
+        <div class="check-item">
             <span>AI scoring</span>
-            <span class="dot"></span>
+            <span class="glow-dot"></span>
         </div>
-        <p style="font-size: 11px; color: #9ca3af; margin-top: 8px; text-align: center;">Elite Bot is monitoring your live account</p>
+
+        <p class="monitor-footer">Elite Bot is monitoring your live account</p>
     </div>
 
-    <!-- BOT CONTROL CARD -->
+    <!-- Master Controls Card -->
     <div class="card">
-        <div class="card-title">
-            <span>🤖 Bot Control</span>
-            <span id="status-indicator" style="background: #064e3b; color: #34d399; padding: 2px 8px; border-radius: 4px; font-size: 10px;">RUNNING</span>
+        <div class="card-header">
+            <div class="card-title">
+                <span>🤖 BOT CONTROL</span>
+            </div>
+            <span id="bot-status-tag" class="bot-status-tag status-running">RUNNING</span>
         </div>
-        
-        <div class="control-btns">
-            <button class="btn btn-start" onclick="setBotStatus('RUNNING')">▶ START BOT</button>
-            <button class="btn btn-stop" onclick="setBotStatus('STOPPED')">⏹ STOP BOT</button>
+
+        <div class="btn-group">
+            <button class="btn-action btn-start-style" onclick="updateBotState('RUNNING')">
+                <span>▶</span> START BOT
+            </button>
+            <button class="btn-action btn-stop-style" onclick="updateBotState('STOPPED')">
+                <span>⏹</span> STOP BOT
+            </button>
         </div>
+    </div>
+
+    <!-- Toast Notification Banner -->
+    <div id="toast" class="toast">
+        <span id="toast-icon">✅</span>
+        <span id="toast-message">Bot started</span>
     </div>
 
     <script>
-        function setBotStatus(status) {
-            const indicator = document.getElementById('status-indicator');
-            if (status === 'RUNNING') {
-                indicator.style.background = '#064e3b';
-                indicator.style.color = '#34d399';
-                indicator.innerText = 'RUNNING';
+        function updateBotState(state) {
+            const tag = document.getElementById('bot-status-tag');
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+
+            if (state === 'RUNNING') {
+                tag.className = 'bot-status-tag status-running';
+                tag.innerText = 'RUNNING';
+                toastMsg.innerText = 'Bot started';
+                toastIcon.innerText = '✅';
             } else {
-                indicator.style.background = '#7f1d1d';
-                indicator.style.color = '#f87171';
-                indicator.innerText = 'STOPPED';
+                tag.className = 'bot-status-tag status-stopped';
+                tag.innerText = 'STOPPED';
+                toastMsg.innerText = 'Bot stopped';
+                toastIcon.innerText = '⏹';
             }
+
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
         }
     </script>
-
 </body>
-        </html>
-        
+            </html>
+            
