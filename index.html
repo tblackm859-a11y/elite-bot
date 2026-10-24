@@ -21,6 +21,11 @@
         .mode-btn.active-demo { background: #3b82f6; color: #ffffff; }
         .mode-btn.active-real { background: #f59e0b; color: #000000; }
 
+        /* Asset Selector Grid */
+        .asset-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px; }
+        .asset-btn { background: #1b1f2b; border: 1px solid #232838; color: #9ca3af; padding: 8px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; text-align: center; }
+        .asset-btn.active { background: #232838; border-color: #fbbf24; color: #fbbf24; }
+
         .analysis-item { display: flex; justify-content: space-between; align-items: center; background: #1b1f2b; padding: 10px 12px; border-radius: 8px; margin-bottom: 8px; font-size: 12px; color: #ffffff; }
         .dot { height: 8px; width: 8px; background-color: #34d399; border-radius: 50%; box-shadow: 0 0 8px #34d399; }
         .chart-box { background: #1b1f2b; height: 90px; border-radius: 8px; overflow: hidden; margin-bottom: 12px; border: 1px solid #232838; position: relative; }
@@ -50,14 +55,27 @@
         <div class="card-title">
             <span>⚡ MT5 ACCOUNT</span>
             <div class="mode-switch">
-                <button id="demoBtn" class="mode-btn" onclick="setAccountMode('DEMO')">TEST (DEMO)</button>
-                <button id="realBtn" class="mode-btn active-real" onclick="setAccountMode('REAL')">REAL</button>
+                <button id="demoBtn" class="mode-btn active-demo" onclick="setAccountMode('DEMO')">TEST (DEMO)</button>
+                <button id="realBtn" class="mode-btn" onclick="setAccountMode('REAL')">REAL</button>
             </div>
         </div>
         <div class="metric-row"><span>Broker:</span><span>JustMarkets</span></div>
-        <div class="metric-row"><span>Login:</span><span id="accountLogin">1550283076</span></div>
-        <div class="metric-row"><span>Server:</span><span id="accountServer">JustMarkets-Live7</span></div>
-        <div class="metric-row"><span>Account type:</span><span id="accountType" style="color: #f59e0b; font-weight: bold;">Live</span></div>
+        <div class="metric-row"><span>Login:</span><span id="accountLogin">1200453988</span></div>
+        <div class="metric-row"><span>Server:</span><span id="accountServer">JustMarkets-Demo3</span></div>
+        <div class="metric-row"><span>Account type:</span><span id="accountType" style="color: #3b82f6; font-weight: bold;">Demo (Test)</span></div>
+    </div>
+
+    <!-- Asset Selector Card -->
+    <div class="card">
+        <div class="card-title"><span>💱 SELECT TRADING ASSET</span></div>
+        <div class="asset-grid">
+            <button class="asset-btn active" id="asset-XAUUSD" onclick="selectAsset('XAUUSD')">XAUUSD</button>
+            <button class="asset-btn" id="asset-EURUSD" onclick="selectAsset('EURUSD')">EURUSD</button>
+            <button class="asset-btn" id="asset-GBPUSD" onclick="selectAsset('GBPUSD')">GBPUSD</button>
+            <button class="asset-btn" id="asset-USDJPY" onclick="selectAsset('USDJPY')">USDJPY</button>
+            <button class="asset-btn" id="asset-AUDUSD" onclick="selectAsset('AUDUSD')">AUDUSD</button>
+            <button class="asset-btn" id="asset-ALL" onclick="selectAsset('ALL PAIRS')">ALL PAIRS</button>
+        </div>
     </div>
 
     <div class="card">
@@ -74,10 +92,10 @@
                 <path d="M0,70 Q 40,40 80,55 T 160,30 T 240,45 T 300,20" fill="none" stroke="#fbbf24" stroke-width="2.5" />
             </svg>
         </div>
-        <div class="analysis-item"><span>Detecting market</span><span class="dot"></span></div>
-        <div class="analysis-item"><span>Calibrating stop loss</span><span class="dot"></span></div>
+        <div class="analysis-item"><span>Market scan</span><span class="dot"></span></div>
+        <div class="analysis-item"><span>Spread filter</span><span class="dot"></span></div>
         <div class="analysis-item"><span>AI scoring</span><span class="dot"></span></div>
-        <p style="font-size: 11px; color: #9ca3af; margin-top: 8px; text-align: center;" id="modeFooter">Elite Bot is monitoring your real account</p>
+        <p style="font-size: 11px; color: #9ca3af; margin-top: 8px; text-align: center;" id="modeFooter">Elite Bot is active for XAUUSD</p>
     </div>
 
     <div class="card">
@@ -92,30 +110,60 @@
     </div>
 
     <script>
+        const TELEGRAM_BOT_TOKEN = "YOUR_BOT_TOKEN_HERE";
+        const TELEGRAM_CHAT_ID = "YOUR_CHAT_ID_HERE";
+
+        let currentMode = 'DEMO';
+        let currentLogin = '1200453988';
+        let selectedAsset = 'XAUUSD';
+
+        function selectAsset(asset) {
+            selectedAsset = asset;
+            const assets = ['XAUUSD', 'EURUSD', 'GBPUSD', 'USDJPY', 'AUDUSD', 'ALL PAIRS'];
+            assets.forEach(a => {
+                const btn = document.getElementById('asset-' + (a === 'ALL PAIRS' ? 'ALL' : a));
+                if (btn) btn.className = 'asset-btn';
+            });
+            const activeBtn = document.getElementById('asset-' + (asset === 'ALL PAIRS' ? 'ALL' : asset));
+            if (activeBtn) activeBtn.className = 'asset-btn active';
+            
+            document.getElementById('modeFooter').innerText = `Elite Bot target set to: ${selectedAsset}`;
+        }
+
+        function sendTelegramSignal(message) {
+            if (TELEGRAM_BOT_TOKEN === "YOUR_BOT_TOKEN_HERE") return;
+            const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+            fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: message })
+            }).catch(err => console.error("Telegram error:", err));
+        }
+
         function setAccountMode(mode) {
             const demoBtn = document.getElementById('demoBtn');
             const realBtn = document.getElementById('realBtn');
             const accType = document.getElementById('accountType');
             const accLogin = document.getElementById('accountLogin');
             const accServer = document.getElementById('accountServer');
-            const footer = document.getElementById('modeFooter');
 
+            currentMode = mode;
             if (mode === 'DEMO') {
                 demoBtn.className = 'mode-btn active-demo';
                 realBtn.className = 'mode-btn';
                 accType.innerText = 'Demo (Test)';
                 accType.style.color = '#3b82f6';
-                accLogin.innerText = '1200453988';
+                currentLogin = '1200453988';
+                accLogin.innerText = currentLogin;
                 accServer.innerText = 'JustMarkets-Demo3';
-                footer.innerText = 'Elite Bot is running in TEST (Demo) mode';
             } else {
                 realBtn.className = 'mode-btn active-real';
                 demoBtn.className = 'mode-btn';
                 accType.innerText = 'Live';
                 accType.style.color = '#f59e0b';
-                accLogin.innerText = '1550283076';
+                currentLogin = '1550283076';
+                accLogin.innerText = currentLogin;
                 accServer.innerText = 'JustMarkets-Live7';
-                footer.innerText = 'Elite Bot is monitoring your real account';
             }
         }
 
@@ -125,13 +173,16 @@
                 indicator.style.background = '#064e3b';
                 indicator.style.color = '#34d399';
                 indicator.innerText = 'RUNNING';
+                
+                sendTelegramSignal(`🚀 ELITE BOT STARTED\nMode: ${currentMode}\nAccount: ${currentLogin}\nAsset/Pairs: ${selectedAsset}\nStatus: Active Execution`);
             } else {
                 indicator.style.background = '#7f1d1d';
                 indicator.style.color = '#f87171';
                 indicator.innerText = 'STOPPED';
+
+                sendTelegramSignal(`🛑 ELITE BOT STOPPED\nMode: ${currentMode}\nAccount: ${currentLogin}\nAsset/Pairs: ${selectedAsset}\nStatus: Paused`);
             }
         }
     </script>
 </body>
-    </html>
-    
+</html>
