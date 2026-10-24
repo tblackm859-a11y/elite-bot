@@ -108,8 +108,8 @@
     </div>
 
     <script>
-        const TELEGRAM_BOT_TOKEN = "YOUR_BOT_TOKEN_HERE";
-        const TELEGRAM_CHAT_ID = "YOUR_CHAT_ID_HERE";
+        const TELEGRAM_BOT_TOKEN = "8326164521:AAGFNKRlVxV57ul4KXUSFcPYCfh8aaHJAJs";
+        const TELEGRAM_CHAT_ID = "8326164521";
 
         let currentMode = 'DEMO';
         let currentLogin = '1200453988';
@@ -129,7 +129,6 @@
         }
 
         function sendTelegramSignal(message) {
-            if (TELEGRAM_BOT_TOKEN === "YOUR_BOT_TOKEN_HERE") return;
             const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
             fetch(url, {
                 method: "POST",
@@ -183,6 +182,5 @@
         }
     </script>
 </body>
-</html>
-const TELEGRAM_BOT_TOKEN = "YOUR_BOT_TOKEN_HERE";
-const TELEGRAM_CHAT_ID = "YOUR_CHAT_ID_HERE";
+    </html>
+    
