@@ -2,267 +2,107 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MT5 Control - Elite Bot</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+        body { background-color: #0d0f12; color: #f3f4f6; padding: 14px 12px; max-width: 440px; margin: 0 auto; }
+        .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+        .top-nav h1 { font-size: 18px; color: #ffffff; }
+        .top-nav p { font-size: 11px; color: #6b7280; }
+        .status-pill { display: inline-flex; align-items: center; gap: 6px; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; color: #10b981; margin-bottom: 14px; }
+        .dot { width: 6px; height: 6px; background-color: #10b981; border-radius: 50%; box-shadow: 0 0 8px #10b981; }
+        .card { background: #14171d; border: 1px solid #1f242d; border-radius: 14px; padding: 16px; margin-bottom: 14px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4); }
+        .card-title { font-size: 13px; font-weight: 800; color: #f59e0b; text-transform: uppercase; margin-bottom: 12px; }
+        .info-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; }
+        .info-label { color: #9ca3af; }
+        .info-value { color: #ffffff; font-family: monospace; }
+        .chart-box { background: #101217; height: 100px; border-radius: 10px; border: 1px solid #1a1e27; margin-bottom: 12px; display: flex; align-items: flex-end; padding: 10px; justify-content: space-around; }
+        .bar { width: 8%; background: linear-gradient(to top, #d97706, #fbbf24); border-radius: 4px 4px 0 0; height: 70%; }
+        .trade-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #1f242d; font-size: 12px; }
+        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
+        .btn { flex: 1; padding: 12px; border-radius: 8px; font-size: 12px; font-weight: 700; border: none; cursor: pointer; text-align: center; }
+        .btn-start { background: #064e3b; color: #34d399; border: 1px solid #059669; }
+        .btn-stop { background: #7f1d1d; color: #f87171; border: 1px solid #dc2626; }
+        .status-badge { font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 4px; background: rgba(16, 185, 129, 0.2); color: #34d399; }
+    </style>
+</head>
+<body>
 
-        body {
-            background-color: #0d0f12;
-            color: #f3f4f6;
-            padding: 14px 12px;
-            max-width: 440px;
-            margin: 0 auto;
-        }
+    <div class="top-nav">
+        <div>
+            <h1>MT5 Control</h1>
+            <p>ghostraderaal.com</p>
+        </div>
+        <span>⚙️</span>
+    </div>
 
-        /* Top Bar Navigation */
-        .top-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 14px;
-        }
+    <div>
+        <div class="status-pill"><span class="dot"></span> CONNECTED</div>
+        <span style="font-size: 11px; color: #6b7280; margin-left: 6px;">Connected to JustMarkets</span>
+    </div>
 
-        .title-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+    <!-- Account Card -->
+    <div class="card" style="margin-top: 10px;">
+        <div class="card-title">⚡ JUSTMARKETS MT5</div>
+        <div class="info-row"><span class="info-label">Broker:</span><span class="info-value">JustMarkets</span></div>
+        <div class="info-row"><span class="info-label">Login:</span><span class="info-value">56197382</span></div>
+        <div class="info-row"><span class="info-label">Server:</span><span class="info-value">JustMarkets-Live</span></div>
+        <div class="info-row"><span class="info-label">Account type:</span><span class="info-value">Live</span></div>
+    </div>
 
-        .title-group h1 {
-            font-size: 18px;
-            font-weight: 700;
-            color: #ffffff;
-            letter-spacing: -0.3px;
-        }
+    <!-- Live Analysis Card -->
+    <div class="card">
+        <div class="card-title">📈 LIVE ANALYSIS</div>
+        <div class="chart-box">
+            <div class="bar" style="height: 35%;"></div>
+            <div class="bar" style="height: 55%;"></div>
+            <div class="bar" style="height: 45%;"></div>
+            <div class="bar" style="height: 75%;"></div>
+            <div class="bar" style="height: 60%;"></div>
+            <div class="bar" style="height: 90%;"></div>
+        </div>
+        <p style="font-size: 11px; color: #9ca3af; text-align: center;">Elite Bot is monitoring XAUUSD</p>
+    </div>
 
-        .title-group p {
-            font-size: 11px;
-            color: #6b7280;
-            margin-top: 1px;
-        }
+    <!-- Live Positions -->
+    <div class="card">
+        <div class="card-title">📊 LIVE POSITIONS</div>
+        <div class="trade-row">
+            <span><strong>XAUUSD</strong> (sell 0.01)</span>
+            <span style="color: #34d399; font-weight: bold;">+$3.77</span>
+        </div>
+        <div class="trade-row">
+            <span><strong>XAUUSD</strong> (sell 0.01)</span>
+            <span style="color: #34d399; font-weight: bold;">+$4.68</span>
+        </div>
+    </div>
 
-        .nav-icons {
-            display: flex;
-            gap: 12px;
-            color: #9ca3af;
-        }
+    <!-- Controls -->
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <span class="card-title" style="margin: 0;">🤖 BOT CONTROL</span>
+            <span id="bot-status" class="status-badge">RUNNING</span>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-start" onclick="toggleBot('RUNNING')">▶ START BOT</button>
+            <button class="btn btn-stop" onclick="toggleBot('STOPPED')">⏹ STOP BOT</button>
+        </div>
+    </div>
 
-        /* Status Banner */
-        .status-container {
-            margin-bottom: 16px;
+    <script>
+        function toggleBot(state) {
+            const badge = document.getElementById('bot-status');
+            if(state === 'RUNNING') {
+                badge.style.background = 'rgba(16, 185, 129, 0.2)';
+                badge.style.color = '#34d399';
+                badge.innerText = 'RUNNING';
+            } else {
+                badge.style.background = 'rgba(239, 68, 68, 0.2)';
+                badge.style.color = '#f87171';
+                badge.innerText = 'STOPPED';
+            }
         }
-
-        .status-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(16, 185, 129, 0.12);
-            border: 1px solid rgba(16, 185, 129, 0.25);
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: 700;
-            color: #10b981;
-            letter-spacing: 0.5px;
-        }
-
-        .status-pill .dot {
-            width: 6px;
-            height: 6px;
-            background-color: #10b981;
-            border-radius: 50%;
-            box-shadow: 0 0 8px #10b981;
-        }
-
-        .broker-text {
-            font-size: 11px;
-            color: #6b7280;
-            margin-left: 8px;
-        }
-
-        /* Dark Card Component */
-        .card {
-            background: #14171d;
-            border: 1px solid #1f242d;
-            border-radius: 14px;
-            padding: 16px;
-            margin-bottom: 14px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 14px;
-        }
-
-        .card-title {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
-            font-weight: 800;
-            color: #f59e0b;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-        }
-
-        .btn-remove {
-            color: #ef4444;
-            font-size: 11px;
-            font-weight: 600;
-            background: none;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        /* Account Details */
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 6px 0;
-            font-size: 13px;
-        }
-
-        .info-label {
-            color: #9ca3af;
-        }
-
-        .info-value {
-            color: #ffffff;
-            font-weight: 500;
-            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-        }
-
-        /* Golden Area Chart */
-        .chart-box {
-            position: relative;
-            width: 100%;
-            height: 110px;
-            background: #101217;
-            border-radius: 10px;
-            overflow: hidden;
-            border: 1px solid #1a1e27;
-            margin-bottom: 14px;
-        }
-
-        .chart-svg {
-            width: 100%;
-            height: 100%;
-        }
-
-        /* Market Signals */
-        .check-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #1a1e26;
-            border: 1px solid #232833;
-            padding: 11px 14px;
-            border-radius: 10px;
-            margin-bottom: 8px;
-            font-size: 12px;
-            color: #d1d5db;
-        }
-
-        .glow-dot {
-            width: 7px;
-            height: 7px;
-            background-color: #10b981;
-            border-radius: 50%;
-            box-shadow: 0 0 10px #10b981;
-        }
-
-        .monitor-footer {
-            text-align: center;
-            font-size: 11px;
-            color: #6b7280;
-            margin-top: 10px;
-        }
-
-        /* Positions List (Like Video Trade Tab) */
-        .trade-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid #1f242d;
-            font-size: 12px;
-        }
-
-        .trade-row:last-child {
-            border-bottom: none;
-        }
-
-        .trade-symbol {
-            font-weight: 700;
-            color: #ffffff;
-        }
-
-        .trade-type {
-            font-size: 11px;
-            color: #ef4444; /* red for sell, green for buy */
-            margin-left: 4px;
-        }
-
-        .trade-profit-pos {
-            color: #34d399;
-            font-weight: 700;
-            font-family: monospace;
-        }
-
-        .trade-profit-neg {
-            color: #f87171;
-            font-weight: 700;
-            font-family: monospace;
-        }
-
-        /* Controls Section */
-        .bot-status-tag {
-            font-size: 10px;
-            font-weight: 800;
-            padding: 3px 8px;
-            border-radius: 4px;
-            letter-spacing: 0.5px;
-            transition: all 0.2s ease;
-        }
-
-        .status-running {
-            background: rgba(16, 185, 129, 0.2);
-            color: #34d399;
-            border: 1px solid rgba(16, 185, 129, 0.4);
-        }
-
-        .status-stopped {
-            background: rgba(239, 68, 68, 0.2);
-            color: #f87171;
-            border: 1px solid rgba(239, 68, 68, 0.4);
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 8px;
-        }
-
-        .btn-action {
-            flex: 1;
-            padding: 13px 8px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 700;
-            border: none;
-            cursor
-        
+    </script>
+</body>
+</html>
