@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MT5 Control</title>
+    <title>MT5 Control - Elite Bot</title>
     <style>
         * {
             box-sizing: border-box;
@@ -127,7 +127,7 @@
             gap: 4px;
         }
 
-        /* Account Table Details */
+        /* Account Details */
         .info-row {
             display: flex;
             justify-content: space-between;
@@ -146,7 +146,7 @@
             font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
         }
 
-        /* Continuous Golden Area Chart */
+        /* Golden Area Chart */
         .chart-box {
             position: relative;
             width: 100%;
@@ -163,7 +163,7 @@
             height: 100%;
         }
 
-        /* Market Signals Checklist */
+        /* Market Signals */
         .check-item {
             display: flex;
             justify-content: space-between;
@@ -190,6 +190,43 @@
             font-size: 11px;
             color: #6b7280;
             margin-top: 10px;
+        }
+
+        /* Positions List (Like Video Trade Tab) */
+        .trade-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #1f242d;
+            font-size: 12px;
+        }
+
+        .trade-row:last-child {
+            border-bottom: none;
+        }
+
+        .trade-symbol {
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .trade-type {
+            font-size: 11px;
+            color: #ef4444; /* red for sell, green for buy */
+            margin-left: 4px;
+        }
+
+        .trade-profit-pos {
+            color: #34d399;
+            font-weight: 700;
+            font-family: monospace;
+        }
+
+        .trade-profit-neg {
+            color: #f87171;
+            font-weight: 700;
+            font-family: monospace;
         }
 
         /* Controls Section */
@@ -227,180 +264,5 @@
             font-size: 12px;
             font-weight: 700;
             border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            transition: opacity 0.15s ease;
-        }
-
-        .btn-action:active {
-            opacity: 0.75;
-        }
-
-        .btn-start-style {
-            background: #064e3b;
-            color: #34d399;
-            border: 1px solid #059669;
-        }
-
-        .btn-stop-style {
-            background: #7f1d1d;
-            color: #f87171;
-            border: 1px solid #dc2626;
-        }
-
-        /* Toast Popup Notification */
-        .toast {
-            position: fixed;
-            bottom: -60px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #111827;
-            color: #ffffff;
-            border: 1px solid #374151;
-            padding: 10px 20px;
-            border-radius: 30px;
-            font-size: 12px;
-            font-weight: 600;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: bottom 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 999;
-        }
-
-        .toast.show {
-            bottom: 24px;
-        }
-    </style>
-</head>
-<body>
-
-    <!-- Header -->
-    <div class="top-nav">
-        <div class="title-group">
-            <span style="font-size: 18px;">📱</span>
-            <div>
-                <h1>MT5 Control</h1>
-                <p>ghostraderaal.com</p>
-            </div>
-        </div>
-        <div class="nav-icons">
-            <span>⚙️</span>
-        </div>
-    </div>
-
-    <!-- Connection Banner -->
-    <div class="status-container">
-        <span class="status-pill"><span class="dot"></span> CONNECTED</span>
-        <span class="broker-text">Connected to Exness</span>
-    </div>
-
-    <!-- Account Details Card -->
-    <div class="card">
-        <div class="card-header">
-            <div class="card-title">
-                <span>⚡ MT5 ACCOUNT</span>
-            </div>
-            <button class="btn-remove">🗑️ Remove</button>
-        </div>
-        <div class="info-row"><span class="info-label">Broker:</span><span class="info-value">Exness</span></div>
-        <div class="info-row"><span class="info-label">Login:</span><span class="info-value">56197382</span></div>
-        <div class="info-row"><span class="info-label">Server:</span><span class="info-value">Exness-Real23</span></div>
-        <div class="info-row"><span class="info-label">Account type:</span><span class="info-value">Live</span></div>
-    </div>
-
-    <!-- Live Analysis Chart Card -->
-    <div class="card">
-        <div class="card-header">
-            <div class="card-title">
-                <span>📈 LIVE ANALYSIS</span>
-            </div>
-        </div>
-
-        <!-- Glowing Golden Area Chart -->
-        <div class="chart-box">
-            <svg class="chart-svg" viewBox="0 0 300 100" preserveAspectRatio="none">
-                <defs>
-                    <linearGradient id="goldGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.5"/>
-                        <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.0"/>
-                    </linearGradient>
-                </defs>
-                <path d="M0,70 Q 30,50 60,60 T 120,40 T 180,55 T 240,25 T 300,35 L 300,100 L 0,100 Z" fill="url(#goldGradient)" />
-                <path d="M0,70 Q 30,50 60,60 T 120,40 T 180,55 T 240,25 T 300,35" fill="none" stroke="#f59e0b" stroke-width="2.5" />
-            </svg>
-        </div>
-
-        <div class="check-item">
-            <span>Detecting market</span>
-            <span class="glow-dot"></span>
-        </div>
-        <div class="check-item">
-            <span>Calibrating stop loss</span>
-            <span class="glow-dot"></span>
-        </div>
-        <div class="check-item">
-            <span>AI scoring</span>
-            <span class="glow-dot"></span>
-        </div>
-
-        <p class="monitor-footer">Elite Bot is monitoring your live account</p>
-    </div>
-
-    <!-- Master Controls Card -->
-    <div class="card">
-        <div class="card-header">
-            <div class="card-title">
-                <span>🤖 BOT CONTROL</span>
-            </div>
-            <span id="bot-status-tag" class="bot-status-tag status-running">RUNNING</span>
-        </div>
-
-        <div class="btn-group">
-            <button class="btn-action btn-start-style" onclick="updateBotState('RUNNING')">
-                <span>▶</span> START BOT
-            </button>
-            <button class="btn-action btn-stop-style" onclick="updateBotState('STOPPED')">
-                <span>⏹</span> STOP BOT
-            </button>
-        </div>
-    </div>
-
-    <!-- Toast Notification Banner -->
-    <div id="toast" class="toast">
-        <span id="toast-icon">✅</span>
-        <span id="toast-message">Bot started</span>
-    </div>
-
-    <script>
-        function updateBotState(state) {
-            const tag = document.getElementById('bot-status-tag');
-            const toast = document.getElementById('toast');
-            const toastMsg = document.getElementById('toast-message');
-            const toastIcon = document.getElementById('toast-icon');
-
-            if (state === 'RUNNING') {
-                tag.className = 'bot-status-tag status-running';
-                tag.innerText = 'RUNNING';
-                toastMsg.innerText = 'Bot started';
-                toastIcon.innerText = '✅';
-            } else {
-                tag.className = 'bot-status-tag status-stopped';
-                tag.innerText = 'STOPPED';
-                toastMsg.innerText = 'Bot stopped';
-                toastIcon.innerText = '⏹';
-            }
-
-            toast.classList.add('show');
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 2500);
-        }
-    </script>
-</body>
-            </html>
-            
+            cursor
+        
