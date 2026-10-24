@@ -2,107 +2,180 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MT5 Control - Elite Bot</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
-        body { background-color: #0d0f12; color: #f3f4f6; padding: 14px 12px; max-width: 440px; margin: 0 auto; }
-        .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-        .top-nav h1 { font-size: 18px; color: #ffffff; }
-        .top-nav p { font-size: 11px; color: #6b7280; }
-        .status-pill { display: inline-flex; align-items: center; gap: 6px; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; color: #10b981; margin-bottom: 14px; }
-        .dot { width: 6px; height: 6px; background-color: #10b981; border-radius: 50%; box-shadow: 0 0 8px #10b981; }
-        .card { background: #14171d; border: 1px solid #1f242d; border-radius: 14px; padding: 16px; margin-bottom: 14px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4); }
-        .card-title { font-size: 13px; font-weight: 800; color: #f59e0b; text-transform: uppercase; margin-bottom: 12px; }
-        .info-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; }
-        .info-label { color: #9ca3af; }
-        .info-value { color: #ffffff; font-family: monospace; }
-        .chart-box { background: #101217; height: 100px; border-radius: 10px; border: 1px solid #1a1e27; margin-bottom: 12px; display: flex; align-items: flex-end; padding: 10px; justify-content: space-around; }
-        .bar { width: 8%; background: linear-gradient(to top, #d97706, #fbbf24); border-radius: 4px 4px 0 0; height: 70%; }
-        .trade-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #1f242d; font-size: 12px; }
-        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
-        .btn { flex: 1; padding: 12px; border-radius: 8px; font-size: 12px; font-weight: 700; border: none; cursor: pointer; text-align: center; }
-        .btn-start { background: #064e3b; color: #34d399; border: 1px solid #059669; }
-        .btn-stop { background: #7f1d1d; color: #f87171; border: 1px solid #dc2626; }
-        .status-badge { font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 4px; background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #0c0d10;
+            color: #d1d5db;
+            padding: 12px;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #14171f;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid #1f2430;
+            margin-bottom: 12px;
+        }
+
+        .header h2 {
+            font-size: 15px;
+            margin: 0;
+            color: #ffffff;
+        }
+
+        .header span {
+            font-size: 11px;
+            color: #9ca3af;
+        }
+
+        .status-badge-top {
+            background: #064e3b;
+            color: #34d399;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .card {
+            background: #14171f;
+            border: 1px solid #1f2430;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            font-weight: bold;
+            color: #fbbf24;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .metric-row span:last-child {
+            color: #ffffff;
+            font-family: monospace;
+        }
+
+        .analysis-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #1b1f2b;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 12px;
+            color: #ffffff;
+        }
+
+        .dot {
+            height: 8px;
+            width: 8px;
+            background-color: #34d399;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px #34d399;
+        }
+
+        /* Smooth Gold Area Chart matching video */
+        .chart-box {
+            background: #1b1f2b;
+            height: 100px;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 12px;
+            border: 1px solid #232838;
+        }
+
+        .chart-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .control-btns {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 13px;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .btn-start {
+            background-color: #064e3b;
+            color: #34d399;
+            border: 1px solid #059669;
+        }
+
+        .btn-stop {
+            background-color: #7f1d1d;
+            color: #f87171;
+            border: 1px solid #dc2626;
+        }
+
+        .btn:active {
+            opacity: 0.8;
+        }
+
+        .remove-btn {
+            font-size: 11px;
+            color: #ef4444;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
-    <div class="top-nav">
+    <div class="header">
         <div>
-            <h1>MT5 Control</h1>
-            <p>ghostraderaal.com</p>
+            <h2>MT5 Control</h2>
+            <span>ghostraderaal.com</span>
         </div>
-        <span>⚙️</span>
-    </div>
-
-    <div>
-        <div class="status-pill"><span class="dot"></span> CONNECTED</div>
-        <span style="font-size: 11px; color: #6b7280; margin-left: 6px;">Connected to JustMarkets</span>
-    </div>
-
-    <!-- Account Card -->
-    <div class="card" style="margin-top: 10px;">
-        <div class="card-title">⚡ JUSTMARKETS MT5</div>
-        <div class="info-row"><span class="info-label">Broker:</span><span class="info-value">JustMarkets</span></div>
-        <div class="info-row"><span class="info-label">Login:</span><span class="info-value">56197382</span></div>
-        <div class="info-row"><span class="info-label">Server:</span><span class="info-value">JustMarkets-Live</span></div>
-        <div class="info-row"><span class="info-label">Account type:</span><span class="info-value">Live</span></div>
-    </div>
-
-    <!-- Live Analysis Card -->
-    <div class="card">
-        <div class="card-title">📈 LIVE ANALYSIS</div>
-        <div class="chart-box">
-            <div class="bar" style="height: 35%;"></div>
-            <div class="bar" style="height: 55%;"></div>
-            <div class="bar" style="height: 45%;"></div>
-            <div class="bar" style="height: 75%;"></div>
-            <div class="bar" style="height: 60%;"></div>
-            <div class="bar" style="height: 90%;"></div>
-        </div>
-        <p style="font-size: 11px; color: #9ca3af; text-align: center;">Elite Bot is monitoring XAUUSD</p>
-    </div>
-
-    <!-- Live Positions -->
-    <div class="card">
-        <div class="card-title">📊 LIVE POSITIONS</div>
-        <div class="trade-row">
-            <span><strong>XAUUSD</strong> (sell 0.01)</span>
-            <span style="color: #34d399; font-weight: bold;">+$3.77</span>
-        </div>
-        <div class="trade-row">
-            <span><strong>XAUUSD</strong> (sell 0.01)</span>
-            <span style="color: #34d399; font-weight: bold;">+$4.68</span>
+        <div>
+            <span style="font-size: 16px;">⚙️</span>
         </div>
     </div>
 
-    <!-- Controls -->
-    <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <span class="card-title" style="margin: 0;">🤖 BOT CONTROL</span>
-            <span id="bot-status" class="status-badge">RUNNING</span>
-        </div>
-        <div class="btn-group">
-            <button class="btn btn-start" onclick="toggleBot('RUNNING')">▶ START BOT</button>
-            <button class="btn btn-stop" onclick="toggleBot('STOPPED')">⏹ STOP BOT</button>
-        </div>
-    </div>
-
-    <script>
-        function toggleBot(state) {
-            const badge = document.getElementById('bot-status');
-            if(state === 'RUNNING') {
-                badge.style.background = 'rgba(16, 185, 129, 0.2)';
-                badge.style.color = '#34d399';
-                badge.innerText = 'RUNNING';
-            } else {
-                badge.style.background = 'rgba(239, 68, 68, 0.2)';
-                badge.style.color = '#f87171';
-                badge.innerText = 'STOPPED';
-            }
-        }
-    </script>
-</body>
-</html>
+    <div style="margin-bottom: 12px;">
+        <span class="status-badge-top">🟢
+            
