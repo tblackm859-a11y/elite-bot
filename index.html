@@ -3,403 +3,246 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MT5 Control Dashboard</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-        body {
-            background-color: #0b0c10;
-            color: #ffffff;
-            padding: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .container {
-            width: 100%;
-            max-width: 420px;
-        }
-        .connection-banner {
-            background-color: #12141c;
-            border: 1px solid #1f2330;
-            border-radius: 12px;
-            padding: 12px 16px;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .conn-left .status-text {
-            font-size: 14px;
-            font-weight: bold;
-            color: #10b981;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .conn-left .status-text::before {
-            content: '';
-            width: 8px;
-            height: 8px;
-            background-color: #10b981;
-            border-radius: 50%;
-            display: inline-block;
-        }
-        .conn-left .sub-text {
-            font-size: 11px;
-            color: #9ca3af;
-            margin-top: 2px;
-        }
-        .remove-btn {
-            background: #ef4444;
-            color: white;
-            border: none;
-            padding: 4px 10px;
-            font-size: 11px;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-        .card {
-            background-color: #12141c;
-            border: 1px solid #1f2330;
-            border-radius: 14px;
-            padding: 16px;
-            margin-bottom: 14px;
-        }
-        .card-title {
-            font-size: 13px;
-            font-weight: bold;
-            color: #fbbf24;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            letter-spacing: 0.5px;
-        }
-        .mode-toggle {
-            display: flex;
-            background: #1a1d28;
-            border-radius: 8px;
-            padding: 3px;
-            margin-bottom: 14px;
-        }
-        .mode-btn {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: #9ca3af;
-            padding: 8px;
-            font-size: 12px;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .mode-btn.active {
-            background: #2563eb;
-            color: #ffffff;
-        }
-        .input-group {
-            margin-bottom: 10px;
-        }
-        .input-label {
-            font-size: 10px;
-            color: #9ca3af;
-            text-transform: uppercase;
-            margin-bottom: 4px;
-            display: block;
-        }
-        .input-field {
-            width: 100%;
-            background: #1a1d28;
-            border: 1px solid #2a2e3d;
-            border-radius: 8px;
-            color: #ffffff;
-            padding: 10px 12px;
-            font-size: 13px;
-            outline: none;
-        }
-        .chart-container {
-            width: 100%;
-            height: 70px;
-            margin: 10px 0;
-        }
-        .analysis-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #1a1d28;
-            border: 1px solid #2a2e3d;
-            border-radius: 8px;
-            padding: 10px 12px;
-            margin-bottom: 8px;
-            font-size: 12px;
-        }
-        .indicator-dot {
-            width: 8px;
-            height: 8px;
-            background-color: #10b981;
-            border-radius: 50%;
-        }
-        .bot-status-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            font-size: 13px;
-        }
-        .status-badge {
-            background: #dc2626;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: bold;
-            letter-spacing: 0.5px;
-        }
-        .status-badge.running {
-            background: #10b981;
-        }
-        .control-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        .btn {
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 13px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-        .btn-start {
-            background-color: #064e3b;
-            color: #34d399;
-            border: 1px solid #059669;
-        }
-        .btn-stop {
-            background-color: #7f1d1d;
-            color: #f87171;
-            border: 1px solid #dc2626;
-        }
-        .footer-note {
-            text-align: center;
-            font-size: 11px;
-            color: #6b7280;
-            margin-top: 8px;
-        }
-        /* Toast Notification */
-        #toast {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: #1f2330;
-            color: #fff;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 13px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-            transition: transform 0.3s ease;
-            z-index: 1000;
-            border: 1px solid #374151;
-        }
-        #toast.show {
-            transform: translateX(-50%) translateY(0);
-        }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <!-- Connection Header -->
-    <div class="connection-banner">
-        <div class="conn-left">
-            <div class="status-text">CONNECTED</div>
-            <div class="sub-text" id="conn-subtitle">Connected to JustMarkets</div>
-        </div>
-        <button class="remove-btn" onclick="resetConfig()">Remove</button>
-    </div>
-
-    <!-- MT5 Account Configuration -->
-    <div class="card">
-        <div class="card-title">💎 MT5 ACCOUNT</div>
-        
-        <div class="mode-toggle">
-            <button class="mode-btn active" id="demo-tab" onclick="setMode('demo')">DEMO MODE</button>
-            <button class="mode-btn" id="real-tab" onclick="setMode('real')">REAL MODE</button>
-        </div>
-
-        <div class="input-group">
-            <label class="input-label">Broker</label>
-            <input type="text" id="broker-input" class="input-field" value="JustMarkets">
-        </div>
-
-        <div class="input-group">
-            <label class="input-label">Login ID</label>
-            <input type="text" id="login-input" class="input-field" value="1200453988">
-        </div>
-
-        <div class="input-group">
-            <label class="input-label">Server</label>
-            <input type="text" id="server-input" class="input-field" value="JustMarkets-Demo">
-        </div>
-
-        <div class="input-group">
-            <label class="input-label">Account Type</label>
-            <input type="text" id="type-input" class="input-field" value="Demo Account" readonly>
-        </div>
-    </div>
-
-    <!-- Live Analysis Visualizer -->
-    <div class="card">
-        <div class="card-title">⚡ LIVE ANALYSIS</div>
-        <div class="chart-container">
-            <svg width="100%" height="70" viewBox="0 0 350 70">
-                <path d="M 0 50 Q 50 20, 100 40 T 200 25 T 300 15 T 350 30" fill="none" stroke="#fbbf24" stroke-width="2.5"/>
-            </svg>
-        </div>
-        <div class="analysis-item">
-            <span>Detecting market structure</span>
-            <div class="indicator-dot"></div>
-        </div>
-        <div class="analysis-item">
-            <span>Calibrating stop loss</span>
-            <div class="indicator-dot"></div>
-        </div>
-        <div class="analysis-item">
-            <span>AI scoring</span>
-            <div class="indicator-dot"></div>
-        </div>
-        <div class="footer-note" id="bot-monitoring-text">Elite Bot is monitoring your Demo account</div>
-    </div>
-
-    <!-- Bot Control -->
-    <div class="card">
-        <div class="card-title">🤖 BOT CONTROL</div>
-        <div class="bot-status-row">
-            <span>Bot Status</span>
-            <div class="status-badge" id="status-badge">STOPPED</div>
-        </div>
-        <div class="control-buttons">
-            <button class="btn btn-start" onclick="startBot()">▶ START BOT</button>
-            <button class="btn btn-stop" onclick="stopBot()">⏹ STOP BOT</button>
-        </div>
-    </div>
-</div>
-
-<div id="toast">Notification message</div>
-
-<script>
-    const BACKEND_URL = 'https://mt5-bot-7.onrender.com';
-
-    function showToast(message) {
-        const toast = document.getElementById('toast');
-        toast.innerText = message;
-        toast.classList.add('show');
-        setTimeout(() => {
-            toast.classList.remove('show');
-        }, 2500);
-    }
-
-    function setMode(mode) {
-        const demoTab = document.getElementById('demo-tab');
-        const realTab = document.getElementById('real-tab');
-        const serverInput = document.getElementById('server-input');
-        const typeInput = document.getElementById('type-input');
-        const subtitle = document.getElementById('conn-subtitle');
-        const monitoringText = document.getElementById('bot-monitoring-text');
-
-        if (mode === 'demo') {
-            demoTab.classList.add('active');
-            realTab.classList.remove('active');
-            serverInput.value = 'JustMarkets-Demo';
-            typeInput.value = 'Demo Account';
-            subtitle.innerText = 'Connected to JustMarkets';
-            monitoringText.innerText = 'Elite Bot is monitoring your Demo account';
-        } else {
-            realTab.classList.add('active');
-            demoTab.classList.remove('active');
-            serverInput.value = 'JustMarkets-Live';
-            typeInput.value = 'Live Account';
-            subtitle.innerText = 'Connected to JustMarkets (Live)';
-            monitoringText.innerText = 'Elite Bot is monitoring your Live account';
-        }
-    }
-
-    function updateUI(status) {
-        const badge = document.getElementById('status-badge');
-        if (status.toUpperCase() === 'RUNNING') {
-            badge.innerText = 'RUNNING';
-            badge.classList.add('running');
-        } else {
-            badge.innerText = 'STOPPED';
-            badge.classList.remove('running');
-        }
-    }
-
-    async function startBot() {
-        try {
-            showToast('Starting bot...');
-            let response = await fetch(`${BACKEND_URL}/start`);
-            let data = await response.json();
-            showToast(data.message || 'Bot started successfully');
-            updateUI('RUNNING');
-        } catch (error) {
-            console.error('Error starting bot:', error);
-            // Fallback for visual response if server is cold starting
-            updateUI('RUNNING');
-            showToast('Bot started');
-        }
-    }
-
-    async function stopBot() {
-        try {
-            showToast('Stopping bot...');
-            let response = await fetch(`${BACKEND_URL}/stop`);
-            let data = await response.json();
-            showToast(data.message || 'Bot stopped');
-            updateUI('STOPPED');
-        } catch (error) {
-            console.error('Error stopping bot:', error);
-            updateUI('STOPPED');
-            showToast('Bot stopped');
-        }
-    }
-
-    async function checkStatus() {
-        try {
-            let response = await fetch(`${BACKEND_URL}/status`);
-            let data = await response.json();
-            if (data.status) {
-                updateUI(data.status);
+    <title>JustMarkets MT5 Bot Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#121212',
+                        cardBg: '#1a1a1a',
+                        cardBorder: '#2a2a2a',
+                        goldAccent: '#f59e0b',
+                    }
+                }
             }
-        } catch (error) {
-            // Silently handle connection checks in background
         }
-    }
+    </script>
+</head>
+<body class="bg-darkBg text-gray-200 font-sans antialiased min-h-screen flex justify-center items-center p-2 sm:p-4">
 
-    function resetConfig() {
-        if(confirm("Reset account settings?")) {
-            document.getElementById('login-input').value = '';
-            showToast('Configuration cleared');
+    <!-- Mobile Frame Wrapper -->
+    <div class="w-full max-w-md bg-cardBg border border-cardBorder rounded-3xl shadow-2xl overflow-hidden flex flex-col">
+        
+        <!-- Top Connection Status Banner -->
+        <div class="bg-[#18231c] border-b border-[#213829] px-4 py-3 flex items-center justify-between">
+            <div>
+                <div class="flex items-center space-x-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="text-emerald-400 font-bold tracking-wide text-sm">CONNECTED</span>
+                </div>
+                <p id="brokerSubtext" class="text-xs text-emerald-600/80 mt-0.5">Connected to JustMarkets</p>
+            </div>
+            <button onclick="toggleSettingsModal()" class="text-gray-400 hover:text-white text-xs bg-darkBg/50 px-2.5 py-1.5 rounded-lg border border-cardBorder transition">
+                <i class="fa-solid fa-pen-to-square"></i> Edit
+            </button>
+        </div>
+
+        <!-- Scrollable Content Area -->
+        <div class="p-4 space-y-4 overflow-y-auto max-h-[80vh]">
+
+            <!-- MT5 Account Card -->
+            <div class="bg-[#161616] border border-cardBorder rounded-2xl p-4 relative shadow-md">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center space-x-2 text-goldAccent">
+                        <i class="fa-solid fa-cube text-sm"></i>
+                        <h2 class="font-bold text-sm tracking-wider">MT5 ACCOUNT</h2>
+                    </div>
+                    <button onclick="resetFields()" class="text-xs text-red-400 bg-red-950/30 border border-red-900/40 px-2 py-0.5 rounded flex items-center space-x-1 hover:bg-red-900/40 transition">
+                        <i class="fa-solid fa-trash-can text-[10px]"></i>
+                        <span>Clear</span>
+                    </button>
+                </div>
+
+                <!-- Editable Account Details Display -->
+                <div class="space-y-1.5 text-xs text-gray-400 bg-darkBg/60 p-2.5 rounded-xl border border-cardBorder/50 mb-3">
+                    <div class="flex justify-between py-0.5">
+                        <span class="text-gray-500">Broker</span>
+                        <span id="displayBroker" class="text-gray-200 font-medium">JustMarkets</span>
+                    </div>
+                    <div class="flex justify-between py-0.5">
+                        <span class="text-gray-500">Login</span>
+                        <span id="displayLogin" class="text-gray-200 font-medium">88492011</span>
+                    </div>
+                    <div class="flex justify-between py-0.5">
+                        <span class="text-gray-500">Server</span>
+                        <span id="displayServer" class="text-gray-200 font-medium">JustForex-Live</span>
+                    </div>
+                    <div class="flex justify-between py-0.5">
+                        <span class="text-gray-500">Account type</span>
+                        <span id="displayAccType" class="text-gray-200 font-medium">Live</span>
+                    </div>
+                </div>
+
+                <!-- Live Analysis Section -->
+                <div class="mt-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-semibold text-emerald-400 flex items-center space-x-1.5">
+                            <i class="fa-solid fa-bolt text-[10px]"></i>
+                            <span>LIVE ANALYSIS</span>
+                        </span>
+                    </div>
+
+                    <!-- Mini Line Chart Mockup -->
+                    <div class="h-16 w-full bg-darkBg/80 rounded-xl border border-cardBorder p-2 flex items-end justify-between relative overflow-hidden mb-3">
+                        <div class="absolute inset-0 opacity-10 bg-[linear-gradient(to_right,#333_1px,transparent_1px),linear-gradient(to_bottom,#333_1px,transparent_1px)] bg-[size:1rem_1rem]"></div>
+                        <svg class="absolute inset-w-full h-full text-goldAccent overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 40">
+                            <path d="M0,30 Q20,10 40,20 T70,5 T100,15" fill="none" stroke="currentColor" stroke-width="2" />
+                        </svg>
+                    </div>
+
+                    <!-- Analysis Steps Checklist -->
+                    <div class="space-y-2 text-xs">
+                        <div class="flex items-center justify-between bg-darkBg/40 px-3 py-2 rounded-xl border border-cardBorder/40">
+                            <span class="text-gray-300">Detecting market</span>
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        </div>
+                        <div class="flex items-center justify-between bg-darkBg/40 px-3 py-2 rounded-xl border border-cardBorder/40">
+                            <span class="text-gray-300">Calibrating stop loss</span>
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        </div>
+                        <div class="flex items-center justify-between bg-darkBg/40 px-3 py-2 rounded-xl border border-cardBorder/40">
+                            <span class="text-gray-300">AI scoring</span>
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-gray-500 mt-2 text-center">Elite Bot is monitoring your live account</p>
+                </div>
+            </div>
+
+            <!-- Bot Control Card -->
+            <div class="bg-[#161616] border border-cardBorder rounded-2xl p-4 shadow-md">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-2 text-goldAccent">
+                        <i class="fa-solid fa-robot text-sm"></i>
+                        <h2 class="font-bold text-sm tracking-wider">BOT CONTROL</h2>
+                    </div>
+                    <div id="statusBadge" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-red-950/50 text-red-400 border border-red-900/50">
+                        STOPPED
+                    </div>
+                </div>
+
+                <div class="mb-3 text-xs text-gray-400 flex justify-between items-center">
+                    <span>Bot Status</span>
+                    <span id="botStatusText" class="text-gray-200 font-medium">Offline</span>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="toggleBot('start')" id="startBtn" class="bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-400 font-semibold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center space-x-2 transition">
+                        <i class="fa-solid fa-play"></i>
+                        <span>START BOT</span>
+                    </button>
+                    <button onclick="toggleBot('stop')" id="stopBtn" class="bg-red-600/20 hover:bg-red-600/30 border border-red-500/40 text-red-400 font-semibold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center space-x-2 transition">
+                        <i class="fa-solid fa-stop"></i>
+                        <span>STOP BOT</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Edit Modal for Customizing Account Details -->
+    <div id="settingsModal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden">
+        <div class="bg-cardBg border border-cardBorder w-full max-w-sm rounded-2xl p-5 space-y-4">
+            <h3 class="text-goldAccent text-sm font-bold tracking-wider uppercase">Edit Account Details</h3>
+            
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block text-gray-400 mb-1">Broker Name</label>
+                    <input type="text" id="inputBroker" value="JustMarkets" class="w-full bg-darkBg border border-cardBorder rounded-lg p-2 text-white outline-none focus:border-goldAccent">
+                </div>
+                <div>
+                    <label class="block text-gray-400 mb-1">MT5 Login Number</label>
+                    <input type="text" id="inputLogin" value="88492011" class="w-full bg-darkBg border border-cardBorder rounded-lg p-2 text-white outline-none focus:border-goldAccent">
+                </div>
+                <div>
+                    <label class="block text-gray-400 mb-1">Server Name</label>
+                    <input type="text" id="inputServer" value="JustForex-Live" class="w-full bg-darkBg border border-cardBorder rounded-lg p-2 text-white outline-none focus:border-goldAccent">
+                </div>
+                <div>
+                    <label class="block text-gray-400 mb-1">Account Type</label>
+                    <select id="inputAccType" class="w-full bg-darkBg border border-cardBorder rounded-lg p-2 text-white outline-none focus:border-goldAccent">
+                        <option value="Live">Live</option>
+                        <option value="Demo">Demo</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex space-x-2 pt-2">
+                <button onclick="toggleSettingsModal()" class="w-1/2 bg-gray-800 hover:bg-gray-700 text-gray-300 py-2 rounded-xl text-xs transition">Cancel</button>
+                <button onclick="saveAccountDetails()" class="w-1/2 bg-goldAccent hover:bg-yellow-600 text-black font-bold py-2 rounded-xl text-xs transition">Save Details</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Popup -->
+    <div id="toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-[#1c241e] border border-emerald-500/40 text-emerald-300 px-4 py-2.5 rounded-xl text-xs shadow-xl flex items-center space-x-2 transition-all duration-300 opacity-0 pointer-events-none">
+        <i class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toastMessage">Details updated</span>
+    </div>
+
+    <script>
+        function toggleSettingsModal() {
+            const modal = document.getElementById('settingsModal');
+            modal.classList.toggle('hidden');
         }
-    }
 
-    // Check status every 4 seconds
-    setInterval(checkStatus, 4000);
-</script>
+        function saveAccountDetails() {
+            const broker = document.getElementById('inputBroker').value;
+            const login = document.getElementById('inputLogin').value;
+            const server = document.getElementById('inputServer').value;
+            const type = document.getElementById('inputAccType').value;
 
+            document.getElementById('displayBroker').textContent = broker;
+            document.getElementById('displayLogin').textContent = login;
+            document.getElementById('displayServer').textContent = server;
+            document.getElementById('displayAccType').textContent = type;
+            document.getElementById('brokerSubtext').textContent = `Connected to ${broker}`;
+
+            toggleSettingsModal();
+            showToast('Account details updated');
+        }
+
+        function resetFields() {
+            document.getElementById('displayBroker').textContent = '-';
+            document.getElementById('displayLogin').textContent = '-';
+            document.getElementById('displayServer').textContent = '-';
+            document.getElementById('displayAccType').textContent = '-';
+            showToast('Account details cleared');
+        }
+
+        function toggleBot(action) {
+            const badge = document.getElementById('statusBadge');
+            const statusText = document.getElementById('botStatusText');
+
+            if (action === 'start') {
+                badge.className = "px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-emerald-950/50 text-emerald-400 border border-emerald-900/50";
+                badge.textContent = "RUNNING";
+                statusText.textContent = "Active on live account";
+                showToast("Bot started successfully");
+            } else {
+                badge.className = "px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-red-950/50 text-red-400 border border-red-900/50";
+                badge.textContent = "STOPPED";
+                statusText.textContent = "Offline";
+                showToast("Bot stopped");
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            toastMessage.textContent = msg;
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 2000);
+        }
+    </script>
 </body>
-    </html>
-    
+</html>
