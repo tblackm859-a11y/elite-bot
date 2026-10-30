@@ -1,0 +1,84 @@
+import os
+import time
+import threading
+import requests
+from flask import Flask, render_template, request, jsonify
+
+app = Flask(__name__)
+
+# --- CONFIGURATION ---
+# Your MetaApi Account ID and Token
+METAAPI_ACCOUNT_ID = "ad531acb-5260-4c48-ab1c-9542482132b4"
+# Replace with your actual MetaApi token (or keep as environment variable)
+METAAPI_TOKEN = os.getenv("METAAPI_TOKEN", "YOUR_METAAPI_TOKEN_HERE")
+
+# Global bot state
+bot_running = False
+
+def execute_trading_strategy():
+    """
+    Background worker that mimics the video's strategy:
+    rapidly placing stacked XAUUSDm sell orders when the bot is active.
+    """
+    global bot_running
+    print("[BOT] Strategy worker started...")
+    
+    # MetaApi REST API endpoint for market orders
+    url = f"https://mt-client-api-v1.agiliumtrade.agiliumtrade.ai/users/current/accounts/{METAAPI_ACCOUNT_ID}/trade"
+    
+    headers = {
+        "auth-token": METAAPI_TOKEN,
+        "Content-Type": "application/json"
+    }
+
+    while bot_running:
+        try:
+            # Payload matching the video's execution style (XAUUSDm, Sell, 0.01 lot)
+            payload = {
+                "actionType": "ORDER_TYPE_SELL",
+                "symbol": "XAUUSDm",
+                "volume": 0.01,
+                "comment": "Elite bot SELL"
+            }
+            
+            # Send order request to MetaApi
+            response = requests.post(url, json=payload, headers=headers, timeout=10)
+            print(f"[MetaApi Response]: {response.status_code} - {response.text}")
+            
+        except Exception as e:
+            print(f"[ERROR] Failed to execute trade: {e}")
+            
+        # Wait before placing the next stacked order in the sequence
+        for _ in range(5):  # Check every second if bot was stopped
+            if not bot_running:
+                break
+            time.sleep(1)
+            
+    print("[BOT] Strategy worker stopped.")
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/api/bot-control', methods=['POST'])
+def bot_control():
+    global bot_running
+    data = request.get_json()
+    action = data.get('action')
+    
+    if action == 'start':
+        if not bot_running:
+            bot_running = True
+            # Start the trading loop in a background thread so the dashboard stays responsive
+            threading.Thread(target=execute_trading_strategy, daemon=True).start()
+        return jsonify({"status": "RUNNING", "message": "Elite Bot started successfully on live account!"})
+        
+    elif action == 'stop':
+        bot_running = False
+        return jsonify({"status": "STOPPED", "message": "Elite Bot has been stopped."})
+        
+    return jsonify({"status": "UNKNOWN", "message": "Invalid action"})
+
+if __name__ == '__main__':
+    # Runs the Flask server locally on your phone
+    app.run(host='0.0.0.0', port=5000, debug=False)
