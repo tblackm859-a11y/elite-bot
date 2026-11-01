@@ -18,8 +18,8 @@
         .info-row { display: flex; justify-content: space-between; margin: 9px 0; font-size: 12px; color: #6b7280; font-style: italic; }
         .info-row span.val { color: #e5e7eb; font-weight: 500; font-style: normal; }
         
-        .chart-box { background: #080c0a; border-radius: 12px; padding: 12px; border: 1px solid #151e18; margin: 12px 0; text-align: center; }
-        .sparkline { width: 100%; height: 45px; stroke: #f59e0b; stroke-width: 2.5; fill: none; }
+        .chart-box { background: #080c0a; border-radius: 12px; padding: 12px; border: 1px solid #151e18; margin: 12px 0; text-align: center; position: relative; overflow: hidden; }
+        .sparkline { width: 100%; height: 55px; display: block; }
         
         .analysis-box { background: #121915; border: 1px solid #1f2c24; padding: 12px 14px; border-radius: 20px; margin: 8px 0; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #10b981; font-style: italic; }
         .dot { width: 8px; height: 8px; background-color: #10b981; border-radius: 50%; box-shadow: 0 0 8px #10b981; animation: pulse 1.5s infinite; }
@@ -66,8 +66,15 @@
         </div>
         
         <div class="chart-box">
-            <svg class="sparkline" viewBox="0 0 100 30">
-                <path d="M0,15 Q15,28 30,8 T60,18 T100,10" stroke="#f59e0b" stroke-width="2.5" fill="none"/>
+            <svg class="sparkline" viewBox="0 0 100 35">
+                <defs>
+                    <linearGradient id="grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.4"/>
+                        <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.0"/>
+                    </linearGradient>
+                </defs>
+                <path d="M0,25 Q15,5 30,18 T60,8 T90,22 T100,12 L100,35 L0,35 Z" fill="url(#grad)"/>
+                <path d="M0,25 Q15,5 30,18 T60,8 T90,22 T100,12" stroke="#f59e0b" stroke-width="2.5" fill="none"/>
             </svg>
         </div>
 
@@ -192,6 +199,7 @@
         }
 
         function startBot() {
+            // Instant video-like toggle feedback
             const statusElem = document.getElementById('bot-status');
             const pillElem = document.getElementById('status-pill');
             statusElem.innerText = 'RUNNING';
@@ -221,5 +229,5 @@
         updateStatus();
     </script>
 </body>
-            </html>
-            
+    </html>
+    
