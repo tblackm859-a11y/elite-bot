@@ -22,7 +22,8 @@
         .sparkline { width: 100%; height: 45px; stroke: #f59e0b; stroke-width: 2.5; fill: none; }
         
         .analysis-box { background: #121915; border: 1px solid #1f2c24; padding: 12px 14px; border-radius: 20px; margin: 8px 0; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #10b981; font-style: italic; }
-        .dot { width: 8px; height: 8px; background-color: #10b981; border-radius: 50%; box-shadow: 0 0 8px #10b981; }
+        .dot { width: 8px; height: 8px; background-color: #10b981; border-radius: 50%; box-shadow: 0 0 8px #10b981; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 0.3; } 50% { opacity: 1; } 100% { opacity: 0.3; } }
         
         .sub-footer { font-size: 11px; color: #10b981; text-align: center; margin-top: 14px; margin-bottom: 4px; font-style: italic; opacity: 0.8; }
         
@@ -47,14 +48,14 @@
             <div class="connected-title">● CONNECTED</div>
             <button class="edit-btn" onclick="openModal()">✏ Edit</button>
         </div>
-        <div class="connected-sub">Connected to JustMarkets</div>
+        <div class="connected-sub" id="broker-sub">Connected to JustMarkets</div>
         
         <div class="section-header">
             <span>📦 MT5 ACCOUNT</span>
             <button class="clear-btn" onclick="clearAccount()">🗑 Clear</button>
         </div>
         
-        <div class="info-row"><span>Broker</span><span class="val">JustMarkets</span></div>
+        <div class="info-row"><span>Broker</span><span class="val" id="acc-broker">JustMarkets</span></div>
         <div class="info-row"><span>Login</span><span class="val" id="acc-login">1200453988</span></div>
         <div class="info-row"><span>Server</span><span class="val" id="acc-server">JustMarkets-Demo3</span></div>
         <div class="info-row"><span>Account type</span><span class="val" id="acc-type">Demo</span></div>
@@ -92,7 +93,6 @@
         </div>
     </div>
 
-    <!-- Edit Modal for Switching Demo / Live & Updating Credentials -->
     <div id="edit-modal">
         <div class="modal-content">
             <h3 style="color: #f59e0b; margin-top: 0; font-size: 14px;">Configure MT5 Account</h3>
@@ -192,15 +192,27 @@
         }
 
         function startBot() {
+            const statusElem = document.getElementById('bot-status');
+            const pillElem = document.getElementById('status-pill');
+            statusElem.innerText = 'RUNNING';
+            statusElem.style.color = '#10b981';
+            pillElem.innerText = 'RUNNING';
+            pillElem.className = 'status-badge-running';
+
             fetch('/start').then(res => res.json()).then(data => {
-                alert(data.message);
                 updateStatus();
             });
         }
 
         function stopBot() {
+            const statusElem = document.getElementById('bot-status');
+            const pillElem = document.getElementById('status-pill');
+            statusElem.innerText = 'Offline';
+            statusElem.style.color = '#f87171';
+            pillElem.innerText = 'STOPPED';
+            pillElem.className = 'status-badge-stopped';
+
             fetch('/stop').then(res => res.json()).then(data => {
-                alert(data.message);
                 updateStatus();
             });
         }
@@ -209,4 +221,5 @@
         updateStatus();
     </script>
 </body>
-</html>
+            </html>
+            
