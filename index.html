@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template_string, request
 import os
 import time
 import threading
@@ -6,6 +6,7 @@ import requests
 
 app = Flask(__name__)
 
+# Default MetaApi credentials (can be updated via dashboard modal)
 METAAPI_ACCOUNT_ID = "ad531acb-5260-4c48-ab1c-9542482132b4"
 METAAPI_TOKEN = os.getenv("METAAPI_TOKEN")
 
@@ -88,12 +89,14 @@ def execute_momentum_stacking():
                 equity = account_info.get("equity", 10.0)
                 floating_profit = account_info.get("profit", 0.0)
                 
+                # $1,300 Target Milestone Check
                 if equity >= TARGET_MILESTONE:
                     close_all_positions()
                     bot_status_message = "Target Goal Achieved ($1,300)!"
                     bot_running = False
                     break
                 
+                # Wave Profit Locking (15% wave target)
                 wave_target = max(2.0, equity * 0.15)
                 if floating_profit >= wave_target:
                     close_all_positions()
@@ -143,9 +146,224 @@ def execute_momentum_stacking():
             bot_status_message = f"Loop Exception: {str(e)[:25]}"
             time.sleep(3)
 
+HTML_TEMPLATE = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elite MT5 Bot Dashboard</title>
+    <style>
+        body { background-color: #0b0f0d; color: #e0e0e0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 12px; }
+        .card { background-color: #121814; border-radius: 16px; padding: 16px; margin-bottom: 15px; border: 1px solid #1c2720; box-shadow: 0 6px 16px rgba(0,0,0,0.7); }
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .connected-title { display: flex; align-items: center; gap: 6px; color: #10b981; font-weight: bold; font-size: 13px; letter-spacing: 0.5px; }
+        .connected-sub { font-size: 11px; color: #047857; margin-top: 2px; margin-bottom: 12px; font-style: italic; }
+        .edit-btn { background: #18221c; border: 1px solid #28382e; color: #10b981; padding: 4px 12px; border-radius: 8px; font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+        
+        .section-header { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: bold; color: #f59e0b; margin-bottom: 12px; letter-spacing: 0.5px; }
+        .clear-btn { background: #261416; border: 1px solid #451a1d; color: #f87171; padding: 3px 10px; border-radius: 8px; font-size: 10px; cursor: pointer; }
+        
+        .info-row { display: flex; justify-content: space-between; margin: 9px 0; font-size: 12px; color: #6b7280; font-style: italic; }
+        .info-row span.val { color: #e5e7eb; font-weight: 500; font-style: normal; }
+        
+        .chart-box { background: #080c0a; border-radius: 12px; padding: 12px; border: 1px solid #151e18; margin: 12px 0; text-align: center; }
+        .sparkline { width: 100%; height: 45px; stroke: #f59e0b; stroke-width: 2.5; fill: none; }
+        
+        .analysis-box { background: #121915; border: 1px solid #1f2c24; padding: 12px 14px; border-radius: 20px; margin: 8px 0; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #10b981; font-style: italic; }
+        .dot { width: 8px; height: 8px; background-color: #10b981; border-radius: 50%; box-shadow: 0 0 8px #10b981; }
+        
+        .sub-footer { font-size: 11px; color: #10b981; text-align: center; margin-top: 14px; margin-bottom: 4px; font-style: italic; opacity: 0.8; }
+        
+        .status-badge-stopped { color: #f87171; background: rgba(239, 68, 68, 0.1); border: 1px solid #7f1d1d; padding: 3px 10px; border-radius: 12px; font-size: 10px; font-weight: bold; }
+        .status-badge-running { color: #10b981; background: rgba(16, 185, 129, 0.1); border: 1px solid #065f46; padding: 3px 10px; border-radius: 12px; font-size: 10px; font-weight: bold; }
+        
+        .btn-container { display: flex; gap: 12px; margin-top: 14px; }
+        .btn { flex: 1; padding: 12px; border-radius: 12px; font-weight: bold; font-size: 12px; cursor: pointer; text-align: center; border: none; letter-spacing: 0.5px; }
+        .btn-start { background-color: #064e3b; color: #34d399; border: 1px solid #047857; }
+        .btn-stop { background-color: #7f1d1d; color: #fca5a5; border: 1px solid #991b1b; }
+
+        #edit-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 100; justify-content: center; align-items: center; }
+        .modal-content { background: #121814; padding: 20px; border-radius: 16px; width: 85%; max-width: 340px; border: 1px solid #1c2720; }
+        .modal-content input, .modal-content select { width: 100%; padding: 10px; margin: 6px 0 12px 0; background: #080c0a; border: 1px solid #1c2720; color: #fff; border-radius: 8px; box-sizing: border-box; font-size: 12px; }
+        .modal-content label { font-size: 11px; color: #9ca3af; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <div class="header-top">
+            <div class="connected-title">● CONNECTED</div>
+            <button class="edit-btn" onclick="openModal()">✏ Edit</button>
+        </div>
+        <div class="connected-sub">Connected to JustMarkets</div>
+        
+        <div class="section-header">
+            <span>📦 MT5 ACCOUNT</span>
+            <button class="clear-btn" onclick="clearAccount()">🗑 Clear</button>
+        </div>
+        
+        <div class="info-row"><span>Broker</span><span class="val">JustMarkets</span></div>
+        <div class="info-row"><span>Login</span><span class="val" id="acc-login">1200453988</span></div>
+        <div class="info-row"><span>Server</span><span class="val" id="acc-server">JustMarkets-Demo3</span></div>
+        <div class="info-row"><span>Account type</span><span class="val" id="acc-type">Demo</span></div>
+        <div class="info-row"><span>Equity</span><span class="val" id="acc-equity" style="color: #10b981; font-weight: bold;">$0.00</span></div>
+
+        <div class="section-header" style="margin-top: 18px;">
+            <span>⚡ LIVE ANALYSIS ($1,300 TARGET)</span>
+        </div>
+        
+        <div class="chart-box">
+            <svg class="sparkline" viewBox="0 0 100 30">
+                <path d="M0,15 Q15,28 30,8 T60,18 T100,10" stroke="#f59e0b" stroke-width="2.5" fill="none"/>
+            </svg>
+        </div>
+
+        <div class="analysis-box"><span>Detecting market</span><span class="dot"></span></div>
+        <div class="analysis-box"><span>Calibrating stop loss</span><span class="dot"></span></div>
+        <div class="analysis-box"><span>AI scoring</span><span class="dot"></span></div>
+        
+        <div class="sub-footer" id="bot-live-msg">Elite Bot is monitoring your account</div>
+    </div>
+
+    <div class="card">
+        <div class="section-header">
+            <span>🤖 BOT CONTROL</span>
+            <span class="status-badge-stopped" id="status-pill">STOPPED</span>
+        </div>
+        <div class="info-row"><span>Bot Status</span><span class="val" id="bot-status" style="color: #f87171;">Offline</span></div>
+        <div class="info-row"><span>Market Price</span><span class="val" id="market-price" style="color: #10b981;">Fetching...</span></div>
+        <div class="info-row"><span>Last Action</span><span class="val" id="last-action" style="color: #f59e0b;">Ready</span></div>
+        
+        <div class="btn-container">
+            <button class="btn btn-start" onclick="startBot()">► START BOT</button>
+            <button class="btn btn-stop" onclick="stopBot()">■ STOP BOT</button>
+        </div>
+    </div>
+
+    <!-- Edit Modal for Switching Demo / Live & Updating Credentials -->
+    <div id="edit-modal">
+        <div class="modal-content">
+            <h3 style="color: #f59e0b; margin-top: 0; font-size: 14px;">Configure MT5 Account</h3>
+            
+            <label>Account Type:</label>
+            <select id="modal-type">
+                <option value="Demo">Demo</option>
+                <option value="Live">Live</option>
+            </select>
+
+            <label>Login ID:</label>
+            <input type="text" id="modal-login" value="1200453988">
+
+            <label>Server Name:</label>
+            <input type="text" id="modal-server" value="JustMarkets-Demo3">
+
+            <label>MT5 Password:</label>
+            <input type="password" id="modal-password" placeholder="Enter password">
+
+            <label>MetaApi Account ID:</label>
+            <input type="text" id="modal-account-id" value="ad531acb-5260-4c48-ab1c-9542482132b4">
+
+            <div style="display: flex; gap: 8px; margin-top: 12px;">
+                <button class="btn btn-start" onclick="saveAccount()" style="padding: 8px;">Save Settings</button>
+                <button class="btn btn-stop" onclick="closeModal()" style="padding: 8px;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openModal() { document.getElementById('edit-modal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('edit-modal').style.display = 'none'; }
+
+        function saveAccount() {
+            const type = document.getElementById('modal-type').value;
+            const login = document.getElementById('modal-login').value;
+            const server = document.getElementById('modal-server').value;
+            const password = document.getElementById('modal-password').value;
+            const accountId = document.getElementById('modal-account-id').value;
+
+            fetch('/api/update-account', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({type: type, login: login, server: server, password: password, account_id: accountId})
+            }).then(res => res.json()).then(data => {
+                alert('Account settings updated successfully!');
+                closeModal();
+                updateStatus();
+            });
+        }
+
+        function clearAccount() {
+            if(confirm('Clear account display?')) {
+                document.getElementById('acc-login').innerText = 'Cleared';
+                document.getElementById('acc-equity').innerText = '$0.00';
+            }
+        }
+
+        function updateStatus() {
+            fetch('/api/status')
+                .then(res => res.json())
+                .then(data => {
+                    const statusElem = document.getElementById('bot-status');
+                    const pillElem = document.getElementById('status-pill');
+                    
+                    if(data.running) {
+                        statusElem.innerText = 'RUNNING';
+                        statusElem.style.color = '#10b981';
+                        pillElem.innerText = 'RUNNING';
+                        pillElem.className = 'status-badge-running';
+                    } else {
+                        statusElem.innerText = 'Offline';
+                        statusElem.style.color = '#f87171';
+                        pillElem.innerText = 'STOPPED';
+                        pillElem.className = 'status-badge-stopped';
+                    }
+                    
+                    if (data.account) {
+                        document.getElementById('acc-login').innerText = data.account.login;
+                        document.getElementById('acc-server').innerText = data.account.server;
+                        document.getElementById('acc-type').innerText = data.account.type;
+                        document.getElementById('acc-equity').innerText = '$' + data.account.equity.toFixed(2);
+                    }
+
+                    if (data.bid) {
+                        document.getElementById('market-price').innerText = 'Bid: ' + data.bid + ' | Ask: ' + data.ask;
+                    }
+
+                    if (data.status_message) {
+                        document.getElementById('bot-live-msg').innerText = data.status_message;
+                    }
+
+                    if (data.last_action) {
+                        document.getElementById('last-action').innerText = data.last_action;
+                    }
+                });
+        }
+
+        function startBot() {
+            fetch('/start').then(res => res.json()).then(data => {
+                alert(data.message);
+                updateStatus();
+            });
+        }
+
+        function stopBot() {
+            fetch('/stop').then(res => res.json()).then(data => {
+                alert(data.message);
+                updateStatus();
+            });
+        }
+
+        setInterval(updateStatus, 3000);
+        updateStatus();
+    </script>
+</body>
+</html>
+"""
+
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template_string(HTML_TEMPLATE)
 
 @app.route('/api/status')
 def status_api():
@@ -161,13 +379,19 @@ def status_api():
 
 @app.route('/api/update-account', methods=['POST'])
 def update_account():
-    global account_config, bot_status_message
+    global METAAPI_ACCOUNT_ID, account_config, bot_status_message
     data = request.json
     if data:
+        account_config["type"] = data.get("type", account_config["type"])
         account_config["login"] = data.get("login", account_config["login"])
         account_config["server"] = data.get("server", account_config["server"])
-        bot_status_message = f"Account {account_config['login']} analyzed and saved successfully!"
-    return jsonify({"status": "success", "message": "Saved successfully"})
+        if data.get("password"):
+            account_config["password"] = data.get("password")
+        if data.get("account_id"):
+            METAAPI_ACCOUNT_ID = data.get("account_id")
+            
+        bot_status_message = f"Switched to {account_config['type']} account ({account_config['login']})!"
+    return jsonify({"status": "success", "message": "Updated successfully"})
 
 @app.route('/start', methods=['GET', 'POST'])
 def start_bot():
@@ -177,7 +401,7 @@ def start_bot():
     if not bot_running:
         bot_running = True
         threading.Thread(target=execute_momentum_stacking, daemon=True).start()
-        bot_status_message = "Fast Stacking Strategy Started & Running!"
+        bot_status_message = "Fast Stacking Strategy Started ($1,300 Target Active)!"
         return jsonify({"status": "success", "message": "Bot started successfully!"})
     return jsonify({"status": "running", "message": "Bot is already running"})
 
@@ -190,4 +414,4 @@ def stop_bot():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000)
-                        
+                    
