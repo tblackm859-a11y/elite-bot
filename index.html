@@ -18,7 +18,7 @@
         .info-row { display: flex; justify-content: space-between; margin: 9px 0; font-size: 12px; color: #6b7280; font-style: italic; }
         .info-row span.val { color: #e5e7eb; font-weight: 500; font-style: normal; }
         
-        .chart-box { background: #080c0a; border-radius: 12px; padding: 12px; border: 1px solid #151e18; margin: 12px 0; text-align: center; position: relative; overflow: hidden; }
+        .chart-box { background: #080c0a; border-radius: 12px; padding: 12px; border: 1px solid #151e18; margin: 12px 0; text-align: center; overflow: hidden; }
         .sparkline { width: 100%; height: 55px; display: block; }
         
         .analysis-box { background: #121915; border: 1px solid #1f2c24; padding: 12px 14px; border-radius: 20px; margin: 8px 0; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #10b981; font-style: italic; }
@@ -48,14 +48,14 @@
             <div class="connected-title">● CONNECTED</div>
             <button class="edit-btn" onclick="openModal()">✏ Edit</button>
         </div>
-        <div class="connected-sub" id="broker-sub">Connected to JustMarkets</div>
+        <div class="connected-sub">Connected to JustMarkets</div>
         
         <div class="section-header">
             <span>📦 MT5 ACCOUNT</span>
             <button class="clear-btn" onclick="clearAccount()">🗑 Clear</button>
         </div>
         
-        <div class="info-row"><span>Broker</span><span class="val" id="acc-broker">JustMarkets</span></div>
+        <div class="info-row"><span>Broker</span><span class="val">JustMarkets</span></div>
         <div class="info-row"><span>Login</span><span class="val" id="acc-login">1200453988</span></div>
         <div class="info-row"><span>Server</span><span class="val" id="acc-server">JustMarkets-Demo3</span></div>
         <div class="info-row"><span>Account type</span><span class="val" id="acc-type">Demo</span></div>
@@ -66,15 +66,15 @@
         </div>
         
         <div class="chart-box">
-            <svg class="sparkline" viewBox="0 0 100 35">
+            <svg class="sparkline" viewBox="0 0 100 40">
                 <defs>
-                    <linearGradient id="grad" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.4"/>
+                    <linearGradient id="chartGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.5"/>
                         <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.0"/>
                     </linearGradient>
                 </defs>
-                <path d="M0,25 Q15,5 30,18 T60,8 T90,22 T100,12 L100,35 L0,35 Z" fill="url(#grad)"/>
-                <path d="M0,25 Q15,5 30,18 T60,8 T90,22 T100,12" stroke="#f59e0b" stroke-width="2.5" fill="none"/>
+                <path d="M0,25 Q12,5 25,20 T50,10 T75,30 T100,12 L100,40 L0,40 Z" fill="url(#chartGrad)"/>
+                <path d="M0,25 Q12,5 25,20 T50,10 T75,30 T100,12" stroke="#f59e0b" stroke-width="2.5" fill="none"/>
             </svg>
         </div>
 
@@ -199,7 +199,6 @@
         }
 
         function startBot() {
-            // Instant video-like toggle feedback
             const statusElem = document.getElementById('bot-status');
             const pillElem = document.getElementById('status-pill');
             statusElem.innerText = 'RUNNING';
