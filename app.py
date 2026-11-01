@@ -48,7 +48,7 @@ def get_account_info():
         if res.status_code == 200:
             info = res.json()
             account_config["login"] = str(info.get("login", account_config["login"]))
-            account_config["server"] = info.get("server", account_config["server"])
+            account_config["server"] = info.get("server", info.get("server", account_config["server"]))
             account_config["balance"] = info.get("balance", 0.0)
             account_config["equity"] = info.get("equity", 0.0)
             return info
@@ -196,4 +196,4 @@ def stop_bot():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000)
-                        
+        
