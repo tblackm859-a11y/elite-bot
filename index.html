@@ -1,315 +1,193 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JustMarkets MT5 Bot Dashboard</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- ApexCharts for Live Animated Chart -->
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        darkBg: '#121212',
-                        cardBg: '#1a1a1a',
-                        cardBorder: '#2a2a2a',
-                        goldAccent: '#f59e0b',
-                    }
-                }
-            }
-        }
-    </script>
-</head>
-<body class="bg-darkBg text-gray-200 font-sans antialiased min-h-screen flex justify-center items-center p-2 sm:p-4">
+from flask import Flask, jsonify, render_template, request
+import os
+import time
+import threading
+import requests
 
-    <!-- Mobile Frame Wrapper -->
-    <div class="w-full max-w-md bg-cardBg border border-cardBorder rounded-3xl shadow-2xl overflow-hidden flex flex-col">
-        
-        <!-- Top Connection Status Banner -->
-        <div class="bg-[#18231c] border-b border-[#213829] px-4 py-3 flex items-center justify-between">
-            <div>
-                <div class="flex items-center space-x-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span class="text-emerald-400 font-bold tracking-wide text-sm">CONNECTED</span>
-                </div>
-                <p id="brokerSubtext" class="text-xs text-emerald-600/80 mt-0.5">Connected to JustMarkets</p>
-            </div>
-            <button onclick="toggleSettingsModal()" class="text-gray-400 hover:text-white text-xs bg-darkBg/50 px-2.5 py-1.5 rounded-lg border border-cardBorder transition">
-                <i class="fa-solid fa-pen-to-square"></i> Edit
-            </button>
-        </div>
+app = Flask(__name__)
 
-        <!-- Scrollable Content Area -->
-        <div class="p-4 space-y-4 overflow-y-auto max-h-[80vh]">
+METAAPI_ACCOUNT_ID = "ad531acb-5260-4c48-ab1c-9542482132b4"
+METAAPI_TOKEN = os.getenv("METAAPI_TOKEN")
 
-            <!-- MT5 Account Card -->
-            <div class="bg-[#161616] border border-cardBorder rounded-2xl p-4 relative shadow-md">
-                <div class="flex items-center justify-between mb-3">
-                    <div class="flex items-center space-x-2 text-goldAccent">
-                        <i class="fa-solid fa-cube text-sm"></i>
-                        <h2 class="font-bold text-sm tracking-wider">MT5 ACCOUNT</h2>
-                    </div>
-                    <button onclick="resetFields()" class="text-xs text-red-400 bg-red-950/30 border border-red-900/40 px-2 py-0.5 rounded flex items-center space-x-1 hover:bg-red-900/40 transition">
-                        <i class="fa-solid fa-trash-can text-[10px]"></i>
-                        <span>Clear</span>
-                    </button>
-                </div>
+bot_running = False
+latest_bid = 0.0
+latest_ask = 0.0
 
-                <!-- Account Details Display -->
-                <div class="space-y-1.5 text-xs text-gray-400 bg-darkBg/60 p-2.5 rounded-xl border border-cardBorder/50 mb-3">
-                    <div class="flex justify-between py-0.5">
-                        <span class="text-gray-500">Broker</span>
-                        <span id="displayBroker" class="text-gray-200 font-medium">JustMarkets</span>
-                    </div>
-                    <div class="flex justify-between py-0.5">
-                        <span class="text-gray-500">Login</span>
-                        <span id="displayLogin" class="text-gray-200 font-medium">88492011</span>
-                    </div>
-                    <div class="flex justify-between py-0.5">
-                        <span class="text-gray-500">Server</span>
-                        <span id="displayServer" class="text-gray-200 font-medium">JustForex-Live</span>
-                    </div>
-                    <div class="flex justify-between py-0.5">
-                        <span class="text-gray-500">Account type</span>
-                        <span id="displayAccType" class="text-gray-200 font-medium">Live</span>
-                    </div>
-                </div>
+bot_status_message = "Elite Bot is monitoring your MT5 account"
+last_action = "Ready"
 
-                <!-- Live Analysis Section -->
-                <div class="mt-4">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-semibold text-emerald-400 flex items-center space-x-1.5">
-                            <i class="fa-solid fa-bolt text-[10px]"></i>
-                            <span>LIVE ANALYSIS</span>
-                        </span>
-                    </div>
+account_config = {
+    "login": "1200453988",
+    "password": "********",
+    "server": "JustMarkets-Demo3",
+    "type": "Demo",
+    "balance": 0.0,
+    "equity": 0.0
+}
 
-                    <!-- Dynamic Animated Gold Chart Container -->
-                    <div class="h-20 w-full bg-darkBg/80 rounded-xl border border-cardBorder p-1 relative overflow-hidden mb-3">
-                        <div id="liveChart"></div>
-                    </div>
+TARGET_MILESTONE = 1300.0
 
-                    <!-- Analysis Steps Checklist with Dynamic Loading Dots -->
-                    <div class="space-y-2 text-xs">
-                        <div id="step1" class="flex items-center justify-between bg-darkBg/40 px-3 py-2 rounded-xl border border-cardBorder/40 transition-all duration-300">
-                            <span class="text-gray-400">Detecting market</span>
-                            <span id="dot1" class="w-2 h-2 rounded-full bg-gray-600"></span>
-                        </div>
-                        <div id="step2" class="flex items-center justify-between bg-darkBg/40 px-3 py-2 rounded-xl border border-cardBorder/40 transition-all duration-300">
-                            <span class="text-gray-400">Calibrating stop loss</span>
-                            <span id="dot2" class="w-2 h-2 rounded-full bg-gray-600"></span>
-                        </div>
-                        <div id="step3" class="flex items-center justify-between bg-darkBg/40 px-3 py-2 rounded-xl border border-cardBorder/40 transition-all duration-300">
-                            <span class="text-gray-400">AI scoring</span>
-                            <span id="dot3" class="w-2 h-2 rounded-full bg-gray-600"></span>
-                        </div>
-                    </div>
-                    <p id="botStatusMessage" class="text-[11px] text-gray-500 mt-2 text-center">Elite Bot is standing by...</p>
-                </div>
-            </div>
+def get_market_price():
+    url = f"https://mt-client-api-v1.new-york.agiliumtrade.ai/users/current/accounts/{METAAPI_ACCOUNT_ID}/symbols/XAUUSDm/current-price"
+    headers = {"auth-token": METAAPI_TOKEN}
+    try:
+        res = requests.get(url, headers=headers, timeout=5)
+        if res.status_code == 200:
+            data = res.json()
+            return data.get("bid"), data.get("ask")
+    except Exception as e:
+        print(f"[BOT] Price fetch error: {e}")
+    return None, None
 
-            <!-- Bot Control Card -->
-            <div class="bg-[#161616] border border-cardBorder rounded-2xl p-4 shadow-md">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center space-x-2 text-goldAccent">
-                        <i class="fa-solid fa-robot text-sm"></i>
-                        <h2 class="font-bold text-sm tracking-wider">BOT CONTROL</h2>
-                    </div>
-                    <div id="statusBadge" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-red-950/50 text-red-400 border border-red-900/50">
-                        STOPPED
-                    </div>
-                </div>
+def get_account_info():
+    global account_config
+    url = f"https://mt-client-api-v1.new-york.agiliumtrade.ai/users/current/accounts/{METAAPI_ACCOUNT_ID}/account-information"
+    headers = {"auth-token": METAAPI_TOKEN}
+    try:
+        res = requests.get(url, headers=headers, timeout=5)
+        if res.status_code == 200:
+            info = res.json()
+            account_config["login"] = str(info.get("login", account_config["login"]))
+            account_config["server"] = info.get("server", account_config["server"])
+            account_config["balance"] = info.get("balance", 0.0)
+            account_config["equity"] = info.get("equity", 0.0)
+            return info
+    except Exception as e:
+        print(f"[BOT] Account info error: {e}")
+    return None
 
-                <div class="mb-3 text-xs text-gray-400 flex justify-between items-center">
-                    <span>Bot Status</span>
-                    <span id="botStatusText" class="text-gray-200 font-medium">Offline</span>
-                </div>
+def close_all_positions():
+    global last_action
+    url = f"https://mt-client-api-v1.new-york.agiliumtrade.ai/users/current/accounts/{METAAPI_ACCOUNT_ID}/trade"
+    headers = {
+        "auth-token": METAAPI_TOKEN,
+        "Content-Type": "application/json"
+    }
+    payload = {"actionType": "POSITION_CLOSE_ALL"}
+    try:
+        requests.post(url, headers=headers, json=payload, timeout=10)
+        last_action = "Target Profit Wave Hit - Closed All Positions!"
+    except Exception as e:
+        print(f"[BOT] Close error: {e}")
 
-                <!-- Action Buttons -->
-                <div class="grid grid-cols-2 gap-3">
-                    <button onclick="toggleBot('start')" id="startBtn" class="bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-400 font-semibold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center space-x-2 transition cursor-pointer">
-                        <i class="fa-solid fa-play"></i>
-                        <span>START BOT</span>
-                    </button>
-                    <button onclick="toggleBot('stop')" id="stopBtn" class="bg-red-600/20 hover:bg-red-600/30 border border-red-500/40 text-red-400 font-semibold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center space-x-2 transition cursor-pointer">
-                        <i class="fa-solid fa-stop"></i>
-                        <span>STOP BOT</span>
-                    </button>
-                </div>
-            </div>
+def execute_momentum_stacking():
+    global bot_running, latest_bid, latest_ask, bot_status_message, last_action
+    trade_url = f"https://mt-client-api-v1.new-york.agiliumtrade.ai/users/current/accounts/{METAAPI_ACCOUNT_ID}/trade"
+    headers = {
+        "auth-token": METAAPI_TOKEN,
+        "Content-Type": "application/json"
+    }
+    
+    last_price = None
+    bot_status_message = "Fast Stacking Strategy Executing ($1,300 Target Active)..."
+    
+    while bot_running:
+        try:
+            account_info = get_account_info()
+            if account_info:
+                equity = account_info.get("equity", 10.0)
+                floating_profit = account_info.get("profit", 0.0)
+                
+                if equity >= TARGET_MILESTONE:
+                    close_all_positions()
+                    bot_status_message = "Target Goal Achieved ($1,300)!"
+                    bot_running = False
+                    break
+                
+                wave_target = max(2.0, equity * 0.15)
+                if floating_profit >= wave_target:
+                    close_all_positions()
+                    last_action = f"Locked Profit Wave: ${floating_profit:.2f}"
+                    time.sleep(2)
+                    continue
 
-        </div>
-    </div>
+                lot_size = 0.01 if equity < 50 else round(min(0.10, equity / 1000.0), 2)
 
-    <!-- Edit Modal -->
-    <div id="settingsModal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-cardBg border border-cardBorder w-full max-w-sm rounded-2xl p-5 space-y-4">
-            <h3 class="text-goldAccent text-sm font-bold tracking-wider uppercase">Edit Account Details</h3>
-            <div class="space-y-3 text-xs">
-                <div>
-                    <label class="block text-gray-400 mb-1">Broker Name</label>
-                    <input type="text" id="inputBroker" value="JustMarkets" class="w-full bg-darkBg border border-cardBorder rounded-lg p-2 text-white outline-none focus:border-goldAccent">
-                </div>
-                <div>
-                    <label class="block text-gray-400 mb-1">MT5 Login Number</label>
-                    <input type="text" id="inputLogin" value="88492011" class="w-full bg-darkBg border border-cardBorder rounded-lg p-2 text-white outline-none focus:border-goldAccent">
-                </div>
-                <div>
-                    <label class="block text-gray-400 mb-1">Server Name</label>
-                    <input type="text" id="inputServer" value="JustForex-Live" class="w-full bg-darkBg border border-cardBorder rounded-lg p-2 text-white outline-none focus:border-goldAccent">
-                </div>
-            </div>
-            <div class="flex space-x-2 pt-2">
-                <button onclick="toggleSettingsModal()" class="w-1/2 bg-gray-800 hover:bg-gray-700 text-gray-300 py-2 rounded-xl text-xs transition">Cancel</button>
-                <button onclick="saveAccountDetails()" class="w-1/2 bg-goldAccent hover:bg-yellow-600 text-black font-bold py-2 rounded-xl text-xs transition">Save</button>
-            </div>
-        </div>
-    </div>
+            bid, ask = get_market_price()
+            if bid and ask:
+                latest_bid = bid
+                latest_ask = ask
+                
+                if last_price is not None:
+                    price_diff = bid - last_price
+                    
+                    if price_diff <= -0.15:
+                        payload = {
+                            "actionType": "ORDER_TYPE_SELL",
+                            "symbol": "XAUUSDm",
+                            "volume": lot_size,
+                            "comment": "Fast Momentum SELL"
+                        }
+                        res = requests.post(trade_url, headers=headers, json=payload, timeout=5)
+                        if res.status_code in [200, 201]:
+                            last_action = f"Auto-SOLD {lot_size} lots at {bid}"
+                        time.sleep(1)
+                        
+                    elif price_diff >= 0.15:
+                        payload = {
+                            "actionType": "ORDER_TYPE_BUY",
+                            "symbol": "XAUUSDm",
+                            "volume": lot_size,
+                            "comment": "Fast Momentum BUY"
+                        }
+                        res = requests.post(trade_url, headers=headers, json=payload, timeout=5)
+                        if res.status_code in [200, 201]:
+                            last_action = f"Auto-BOUGHT {lot_size} lots at {ask}"
+                        time.sleep(1)
+                
+                last_price = bid
+            
+            time.sleep(2)
+            
+        except Exception as e:
+            bot_status_message = f"Loop Exception: {str(e)[:25]}"
+            time.sleep(3)
 
-    <!-- Toast Notification -->
-    <div id="toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-[#1c241e] border border-emerald-500/40 text-emerald-300 px-4 py-2.5 rounded-xl text-xs shadow-xl flex items-center space-x-2 transition-all duration-300 opacity-0 pointer-events-none z-50">
-        <i class="fa-solid fa-circle-check text-emerald-400"></i>
-        <span id="toastMessage">Done</span>
-    </div>
+@app.route('/')
+def index():
+    return render_template('index.html')
 
-    <script>
-        // Initialize Live Moving Gold Chart
-        var options = {
-            series: [{ data: [30, 40, 35, 50, 49, 60, 70, 91, 125, 110, 135] }],
-            chart: {
-                type: 'line',
-                height: 75,
-                sparkline: { enabled: true },
-                animations: {
-                    enabled: true,
-                    easing: 'linear',
-                    dynamicAnimation: { speed: 1000 }
-                }
-            },
-            stroke: { curve: 'smooth', width: 2 },
-            colors: ['#f59e0b'],
-            tooltip: { enabled: false }
-        };
+@app.route('/api/status')
+def status_api():
+    get_account_info()
+    return jsonify({
+        "running": bot_running,
+        "bid": latest_bid,
+        "ask": latest_ask,
+        "account": account_config,
+        "status_message": bot_status_message,
+        "last_action": last_action
+    })
 
-        var chart = new ApexCharts(document.querySelector("#liveChart"), options);
-        chart.render();
+@app.route('/api/update-account', methods=['POST'])
+def update_account():
+    global account_config, bot_status_message
+    data = request.json
+    if data:
+        account_config["login"] = data.get("login", account_config["login"])
+        account_config["server"] = data.get("server", account_config["server"])
+        bot_status_message = f"Account {account_config['login']} analyzed and saved successfully!"
+    return jsonify({"status": "success", "message": "Saved successfully"})
 
-        // Simulate Live Data Ticks when Bot is Running
-        let chartInterval;
-        function startLiveChartTicks() {
-            chartInterval = setInterval(() => {
-                let newData = chart.w.config.series[0].data.slice(1);
-                newData.push(Math.floor(Math.random() * (140 - 80 + 1)) + 80);
-                chart.updateSeries([{ data: newData }]);
-            }, 1500);
-        }
+@app.route('/start', methods=['GET', 'POST'])
+def start_bot():
+    global bot_running, bot_status_message
+    if not METAAPI_TOKEN:
+        return jsonify({"status": "error", "message": "METAAPI_TOKEN missing"}), 400
+    if not bot_running:
+        bot_running = True
+        threading.Thread(target=execute_momentum_stacking, daemon=True).start()
+        bot_status_message = "Fast Stacking Strategy Started & Running!"
+        return jsonify({"status": "success", "message": "Bot started successfully!"})
+    return jsonify({"status": "running", "message": "Bot is already running"})
 
-        function stopLiveChartTicks() {
-            clearInterval(chartInterval);
-        }
+@app.route('/stop', methods=['GET', 'POST'])
+def stop_bot():
+    global bot_running, bot_status_message
+    bot_running = False
+    bot_status_message = "Bot stopped by user"
+    return jsonify({"status": "success", "message": "Bot stopped successfully."})
 
-        // Bot Toggle Logic with Video-Style Analysis Activation sequence
-        function toggleBot(action) {
-            const badge = document.getElementById('statusBadge');
-            const statusText = document.getElementById('botStatusText');
-            const statusMsg = document.getElementById('botStatusMessage');
-
-            const step1 = document.getElementById('step1');
-            const step2 = document.getElementById('step2');
-            const step3 = document.getElementById('step3');
-            const dot1 = document.getElementById('dot1');
-            const dot2 = document.getElementById('dot2');
-            const dot3 = document.getElementById('dot3');
-
-            if (action === 'start') {
-                badge.className = "px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-emerald-950/50 text-emerald-400 border border-emerald-900/50";
-                badge.textContent = "RUNNING";
-                statusText.textContent = "Active on live account";
-                statusMsg.textContent = "Elite Bot is initializing market analysis...";
-                showToast("Bot started successfully");
-
-                startLiveChartTicks();
-
-                // Step 1 Glow
-                setTimeout(() => {
-                    step1.className = "flex items-center justify-between bg-emerald-950/20 px-3 py-2 rounded-xl border border-emerald-500/40 transition-all duration-300";
-                    step1.querySelector('span').className = "text-emerald-300 font-medium";
-                    dot1.className = "w-2 h-2 rounded-full bg-emerald-500 animate-ping";
-                }, 500);
-
-                // Step 2 Glow
-                setTimeout(() => {
-                    dot1.className = "w-2 h-2 rounded-full bg-emerald-500";
-                    step2.className = "flex items-center justify-between bg-emerald-950/20 px-3 py-2 rounded-xl border border-emerald-500/40 transition-all duration-300";
-                    step2.querySelector('span').className = "text-emerald-300 font-medium";
-                    dot2.className = "w-2 h-2 rounded-full bg-emerald-500 animate-ping";
-                }, 1500);
-
-                // Step 3 Glow & Final State
-                setTimeout(() => {
-                    dot2.className = "w-2 h-2 rounded-full bg-emerald-500";
-                    step3.className = "flex items-center justify-between bg-emerald-950/20 px-3 py-2 rounded-xl border border-emerald-500/40 transition-all duration-300";
-                    step3.querySelector('span').className = "text-emerald-300 font-medium";
-                    dot3.className = "w-2 h-2 rounded-full bg-emerald-500 animate-ping";
-                    statusMsg.textContent = "Elite Bot is monitoring your live account";
-                }, 2500);
-
-                setTimeout(() => {
-                    dot3.className = "w-2 h-2 rounded-full bg-emerald-500";
-                }, 3000);
-
-            } else {
-                badge.className = "px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-red-950/50 text-red-400 border border-red-900/50";
-                badge.textContent = "STOPPED";
-                statusText.textContent = "Offline";
-                statusMsg.textContent = "Elite Bot is standing by...";
-                showToast("Bot stopped");
-
-                stopLiveChartTicks();
-
-                // Reset steps back to dim gray
-                [step1, step2, step3].forEach((step, idx) => {
-                    step.className = "flex items-center justify-between bg-darkBg/40 px-3 py-2 rounded-xl border border-cardBorder/40 transition-all duration-300";
-                    step.querySelector('span').className = "text-gray-400";
-                    document.getElementById(`dot${idx+1}`).className = "w-2 h-2 rounded-full bg-gray-600";
-                });
-            }
-        }
-
-        function toggleSettingsModal() {
-            document.getElementById('settingsModal').classList.toggle('hidden');
-        }
-
-        function saveAccountDetails() {
-            document.getElementById('displayBroker').textContent = document.getElementById('inputBroker').value;
-            document.getElementById('displayLogin').textContent = document.getElementById('inputLogin').value;
-            document.getElementById('displayServer').textContent = document.getElementById('inputServer').value;
-            document.getElementById('brokerSubtext').textContent = `Connected to ${document.getElementById('inputBroker').value}`;
-            toggleSettingsModal();
-            showToast('Account details saved');
-        }
-
-        function resetFields() {
-            document.getElementById('displayBroker').textContent = '-';
-            document.getElementById('displayLogin').textContent = '-';
-            document.getElementById('displayServer').textContent = '-';
-            showToast('Cleared account details');
-        }
-
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toastMessage').textContent = msg;
-            toast.classList.remove('opacity-0', 'pointer-events-none');
-            setTimeout(() => {
-                toast.classList.add('opacity-0', 'pointer-events-none');
-            }, 2500);
-        }
-    </script>
-</body>
-                                                                                                           </html>
-                            
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=10000)
+                        
