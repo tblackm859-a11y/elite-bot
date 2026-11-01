@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, jsonify
 import os
 import time
 import threading
@@ -25,7 +25,8 @@ def execute_trading_strategy():
             payload = {
                 "actionType": "ORDER_TYPE_SELL",
                 "symbol": "XAUUSDm",
-                "volume": 0.01
+                "volume": 0.01,
+                "comment": "Elite bot SELL"
             }
             response = requests.post(url, headers=headers, json=payload, timeout=10)
             print(f"[BOT] Trade response: {response.status_code}, {response.text}")
@@ -42,7 +43,7 @@ def index():
 def start_bot():
     global bot_running
     if not METAAPI_TOKEN:
-        return jsonify({"status": "error", "message": "METAAPI_TOKEN environment variable missing"}), 400
+        return jsonify({"status": "error", "message": "METAAPI_TOKEN missing"}), 400
     if not bot_running:
         bot_running = True
         threading.Thread(target=execute_trading_strategy, daemon=True).start()
@@ -57,3 +58,4 @@ def stop_bot():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000)
+                
